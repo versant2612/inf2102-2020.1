@@ -42,6 +42,10 @@ export FLASK_CONFIG=development
 ```
 SET FLASK_APP=run.py
 SET FLASK_CONFIG=development
+SET AGRAPH_HOST=localhost
+SET AGRAPH_PORT=10035
+SET AGRAPH_USER=nima
+SET AGRAPH_PASSWORD=(inserirAquiOPasswordDoAllegro)
 ```
 
 # Run in development
