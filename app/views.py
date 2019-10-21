@@ -9,12 +9,13 @@ from flask import render_template
 
 from app import app
 
+AGRAPH_HOST = os.environ.get('AGRAPH_HOST')
+AGRAPH_PORT = int(os.environ.get('AGRAPH_PORT', '10035'))
+AGRAPH_USER = os.environ.get('AGRAPH_USER')
+AGRAPH_PASSWORD = os.environ.get('AGRAPH_PASSWORD')
+
 @app.route('/')
 def index():
-	AGRAPH_HOST = os.environ.get('AGRAPH_HOST')
-	AGRAPH_PORT = int(os.environ.get('AGRAPH_PORT', '10035'))
-	AGRAPH_USER = os.environ.get('AGRAPH_USER')
-	AGRAPH_PASSWORD = os.environ.get('AGRAPH_PASSWORD')
 
 	server = AllegroGraphServer(host=AGRAPH_HOST, port=AGRAPH_PORT, user=AGRAPH_USER, password=AGRAPH_PASSWORD)
 	catalog = server.openCatalog()
@@ -103,5 +104,56 @@ def about():
 				print(statement)
 
 
+
+	return render_template("about.html")
+
+
+@app.route('/testes')
+def testes():
+
+	server = AllegroGraphServer(host=AGRAPH_HOST, port=AGRAPH_PORT, user=AGRAPH_USER, password=AGRAPH_PASSWORD)
+	catalog = server.openCatalog()
+
+	lattes = catalog.getRepository("lattes", Repository.OPEN).getConnection()
+	lattes21 = catalog.getRepository("lattes21", Repository.OPEN).getConnection()
+
+	print('Repository lattes is up!, It contains %d statement(s).' % lattes.size())
+	print('Repository lattes21 is up!, It contains %d statement(s).' % lattes21.size())
+
+
+	fedRepository = server.openFederated([lattes, lattes21])
+	#print('Federated repository is up!, It contains %d statement(s).' % fedRepository.size())
+
+	queryString = "PREFIX type:<http://purl.org/ontology/bibo/> SELECT (count(*) as ?conta) " \
+	" WHERE {?s ?p ?type; dc:language 'Português'; dc:creator ?author; dc:title ?title . "\
+	" ?author foaf:name ?author_name.   filter (?type = type:Article || ?type = type:Thesis) . " \
+	" filter (regex(fn:lower-case(str(?title)), 'meio ambiente')) . }"
+
+	print("Lattes:")
+	res = lattes.executeTupleQuery(queryString)
+	for binding_set in res:
+		conta = binding_set.getValue("conta")
+		print("%s" % (conta))
+
+
+	print("\n\n\n")
+	print("Lattes21:")
+	res21 = lattes21.executeTupleQuery(queryString)
+	for binding_set in res21:
+		conta = binding_set.getValue("conta")
+		print("%s" % (conta))
+
+
+	'''print("\n\n\n")
+	print("Federated Repositories:")
+	resF = fedRepository.executeTupleQuery(queryString)
+	for binding_set in resF:
+		conta = binding_set.getValue("conta")
+		print("%s" % (conta))
+	'''
+
+	# Nao olvidar de liberar as conexoes
+	lattes.close()
+	lattes21.close()
 
 	return render_template("about.html")
