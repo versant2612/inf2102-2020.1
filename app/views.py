@@ -105,7 +105,7 @@ def index():
 @app.route('/about')
 def about():
 
-	with ag_connect('lattes21') as connection.lattes21:
+	with connection.lattes21:
 		print('Connected to repository lattes21')
 		print('Size of statements:', connection.lattes21.size())
 
@@ -155,49 +155,47 @@ def about():
 @app.route('/testes')
 def testes():
 
-	server = AllegroGraphServer(host=AGRAPH_HOST, port=AGRAPH_PORT, user=AGRAPH_USER, password=AGRAPH_PASSWORD)
-	catalog = server.openCatalog()
-
-	lattes = catalog.getRepository("lattes", Repository.OPEN).getConnection()
-	lattes21 = catalog.getRepository("lattes21", Repository.OPEN).getConnection()
-
-	print('Repository lattes is up!, It contains %d statement(s).' % lattes.size())
-	print('Repository lattes21 is up!, It contains %d statement(s).' % lattes21.size())
-
-
-	fedRepository = server.openFederated([lattes, lattes21])
-	#print('Federated repository is up!, It contains %d statement(s).' % fedRepository.size())
-
-	queryString = "PREFIX type:<http://purl.org/ontology/bibo/> SELECT (count(*) as ?conta) " \
-	" WHERE {?s ?p ?type; dc:language 'Português'; dc:creator ?author; dc:title ?title . "\
-	" ?author foaf:name ?author_name.   filter (?type = type:Article || ?type = type:Thesis) . " \
-	" filter (regex(fn:lower-case(str(?title)), 'meio ambiente')) . }"
-
-	print("Lattes:")
-	res = lattes.executeTupleQuery(queryString)
-	for binding_set in res:
-		conta = binding_set.getValue("conta")
-		print("%s" % (conta))
+	# server = AllegroGraphServer(host=connection.AGRAPH_HOST, port=AGRAPH_PORT, user=AGRAPH_USER, password=AGRAPH_PASSWORD)
+	# catalog = server.openCatalog()
+	# lattes = catalog.getRepository("lattes", Repository.OPEN).getConnection()
+	# lattes21 = catalog.getRepository("lattes21", Repository.OPEN).getConnection()
+	with connection.lattes21 as lattes21:
+		# print('Repository lattes is up!, It contains %d statement(s).' % lattes.size())
+		print('Repository lattes21 is up!, It contains %d statement(s).' % lattes21.size())
 
 
-	print("\n\n\n")
-	print("Lattes21:")
-	res21 = lattes21.executeTupleQuery(queryString)
-	for binding_set in res21:
-		conta = binding_set.getValue("conta")
-		print("%s" % (conta))
+		#fedRepository = server.openFederated([lattes, lattes21])
+		#print('Federated repository is up!, It contains %d statement(s).' % fedRepository.size())
+		suastring = "meio ambiente"
+		queryString = "PREFIX type:<http://purl.org/ontology/bibo/> SELECT (count(*) as ?conta) " \
+		" WHERE {?s ?p ?type; dc:language 'Português'; dc:creator ?author; dc:title ?title . "\
+		" ?author foaf:name ?author_name. filter (regex(fn:lower-case(str(?title)), '" + suastring + "')) . }"
+
+		# print("Lattes:")
+		# res = lattes.executeTupleQuery(queryString)
+		# for binding_set in res:
+		# 	conta = binding_set.getValue("conta")
+		# 	print("%s" % (conta))
 
 
-	'''print("\n\n\n")
-	print("Federated Repositories:")
-	resF = fedRepository.executeTupleQuery(queryString)
-	for binding_set in resF:
-		conta = binding_set.getValue("conta")
-		print("%s" % (conta))
-	'''
+		print("\n\n\n")
+		print("Lattes21:")
+		res21 = lattes21.executeTupleQuery(queryString)
+		for binding_set in res21:
+			conta = binding_set.getValue("conta")
+			print("%s" % (conta))
+
+
+		'''print("\n\n\n")
+		print("Federated Repositories:")
+		resF = fedRepository.executeTupleQuery(queryString)
+		for binding_set in resF:
+			conta = binding_set.getValue("conta")
+			print("%s" % (conta))
+		'''
 
 	# Nao olvidar de liberar as conexoes
-	lattes.close()
+	# lattes.close()
 	lattes21.close()
 
 	return render_template("about.html")
