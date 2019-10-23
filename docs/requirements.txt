@@ -3,6 +3,8 @@ certifi==2019.9.11
 chardet==3.0.4
 Click==7.0
 Flask==1.1.1
+Flask-Bootstra==3.3.7.1
+Flask-WTF==0.14.2
 future==0.17.1
 idna==2.8
 iso8601==0.1.12
@@ -18,3 +20,5 @@ urllib3==1.25.5
 Werkzeug==0.16.0
 wheel==0.29.0
 wincertstore==0.2
+wtforms==2.2.1
+
