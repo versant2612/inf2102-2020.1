@@ -11,15 +11,43 @@ from app import app
 from . import connection
 from .forms import SearchForm
 
-@app.route('/')
+@app.route('/', methods=['GET','POST'])
 def index():
 
 	form = SearchForm()
-	if form.validate_on_submit():
-		print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-		print(form.word.data)
 
-		return redirect(url_for('index'))
+	if request.method == 'POST':
+		string_buscada = form.busca.data
+
+		with connection.lattes21 as lattes21:
+			print(string_buscada)
+
+			# print('Repository lattes is up!, It contains %d statement(s).' % lattes.size())
+			print('Repository lattes21 is up!, It contains %d statement(s).' % lattes21.size())
+
+
+			#fedRepository = server.openFederated([lattes, lattes21])
+			#print('Federated repository is up!, It contains %d statement(s).' % fedRepository.size())
+			queryString = "PREFIX type:<http://purl.org/ontology/bibo/> SELECT (count(*) as ?conta) " \
+			" WHERE {?s ?p ?type; dc:language 'Português'; dc:creator ?author; dc:title ?title . "\
+			" ?author foaf:name ?author_name. filter (regex(fn:lower-case(str(?title)), '" + string_buscada + "')) . }"
+
+			# print("Lattes:")
+			# res = lattes.executeTupleQuery(queryString)
+			# for binding_set in res:
+			# 	conta = binding_set.getValue("conta")
+			# 	print("%s" % (conta))
+
+
+			print("\n\n\n")
+			print("Lattes21:")
+			res21 = lattes21.executeTupleQuery(queryString)
+			for binding_set in res21:
+				conta = binding_set.getValue("conta")
+				print("%s" % (conta))
+
+		return render_template("/index.html", form=form, dados=conta)
+
 
 	# server = AllegroGraphServer(host=connection.AGRAPH_HOST, port=connection.AGRAPH_PORT, user=connection.AGRAPH_USER, password=connection.AGRAPH_PASSWORD)
 	# catalog = server.openCatalog()
@@ -58,21 +86,22 @@ def index():
 	# 		print("%s %s %s" % (s, p, o))'''
 
 	#lattes21
-	print('Connected to repository lattes21')
-	print('Size of statements:', connection.lattes21.size())
+	#AQUIIIIIIIII
+	# print('Connected to repository lattes21')
+	# print('Size of statements:', connection.lattes21.size())
 
-	# Trying queries
-	query_string = "SELECT ?s ?p ?o  WHERE {?s dc:language ?o .} LIMIT 20"
-	tuple_query = connection.lattes21.prepareTupleQuery(QueryLanguage.SPARQL, query_string)
-	result = tuple_query.evaluate()
-	with result:
-		print("s,             p,             o:")
-		for binding_set in result:
-			s = binding_set.getValue("s")
-			p = binding_set.getValue("p")
-			o = binding_set.getValue("o")
-			print("%s %s %s" % (s, p, o))
-
+	# # Trying queries
+	# query_string = "SELECT ?s ?p ?o  WHERE {?s dc:language ?o .} LIMIT 20"
+	# tuple_query = connection.lattes21.prepareTupleQuery(QueryLanguage.SPARQL, query_string)
+	# result = tuple_query.evaluate()
+	# with result:
+	# 	print("s,             p,             o:")
+	# 	for binding_set in result:
+	# 		s = binding_set.getValue("s")
+	# 		p = binding_set.getValue("p")
+	# 		o = binding_set.getValue("o")
+	# 		print("%s %s %s" % (s, p, o))
+	#AQUI
 
 	# print("\n\n\n")
 	# print('SPARQL filter match')
@@ -89,15 +118,17 @@ def index():
 	# connection.lattes21.executeTupleQuery('''SELECT DISTINCT ?o WHERE {?s dc:language ?o .} ORDER BY ?o''', output=True)
 
 
-	print("\n\n\n")
-	# Trying statements
-	print('Statements where object = "Português"')
-	portugues = connection.lattes21.createLiteral("Português") # Para criar subject é createURI()
-	statements = connection.lattes21.getStatements(subject=None, predicate=None, object=portugues, limit=20) # It is a RepositoryResult object
-	with statements:
-		#statements.enableDuplicateFilter()
-		for statement in statements:
-			print(statement)
+	#AQUI
+	# print("\n\n\n")
+	# # Trying statements
+	# print('Statements where object = "Português"')
+	# portugues = connection.lattes21.createLiteral("Português") # Para criar subject é createURI()
+	# statements = connection.lattes21.getStatements(subject=None, predicate=None, object=portugues, limit=20) # It is a RepositoryResult object
+	# with statements:
+	# 	#statements.enableDuplicateFilter()
+	# 	for statement in statements:
+	# 		print(statement)
+
 
 
 	return render_template("/index.html", form=form)
