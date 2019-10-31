@@ -28,9 +28,11 @@ def index():
 
 			#fedRepository = server.openFederated([lattes, lattes21])
 			#print('Federated repository is up!, It contains %d statement(s).' % fedRepository.size())
-			queryString = "PREFIX type:<http://purl.org/ontology/bibo/> SELECT (count(*) as ?conta) " \
+			queryString = "PREFIX type:<http://purl.org/ontology/bibo/>  " \
+			" SELECT DISTINCT (UCASE(str(?author_name)) as ?names) " \
 			" WHERE {?s ?p ?type; dc:language 'Português'; dc:creator ?author; dc:title ?title . "\
-			" ?author foaf:name ?author_name. filter (regex(fn:lower-case(str(?title)), '" + string_buscada + "')) . }"
+			" ?author foaf:name ?author_name. filter (regex(fn:lower-case(str(?title)), fn:lower-case('" + string_buscada + "'))) . }" \
+			" ORDER BY ?author_name"
 
 			# print("Lattes:")
 			# res = lattes.executeTupleQuery(queryString)
@@ -42,11 +44,18 @@ def index():
 			print("\n\n\n")
 			print("Lattes21:")
 			res21 = lattes21.executeTupleQuery(queryString)
-			for binding_set in res21:
-				conta = binding_set.getValue("conta")
-				print("%s" % (conta))
 
-		return render_template("/index.html", form=form, dados=conta)
+			nResultados=res21.rowCount() # number of elements in the result
+
+			results=[]
+			for binding_set in res21:
+				#conta = binding_set.getValue("conta")
+				authorName = str(binding_set.getValue("names"))
+				authorName=authorName[1:-1] # fora os " "
+				results.append(authorName)
+				print("%s" % (authorName))
+
+		return render_template("/index.html", form=form, dados=results, busca=string_buscada, nResultados=nResultados)
 
 
 	# server = AllegroGraphServer(host=connection.AGRAPH_HOST, port=connection.AGRAPH_PORT, user=connection.AGRAPH_USER, password=connection.AGRAPH_PASSWORD)

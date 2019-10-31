@@ -5,18 +5,23 @@
 {% block body %}
 <div class="jumbotron">
   	<h1>Bem-vindo ao Sistema NIMA</h1>
-  	<p class="lead">Digite as palavras-chave que quer pesquisar:</p>
+  	<p class="lead" style="font-size: 25px">Digite as palavras-chave que quer pesquisar: </p><br>
 	{% if form %}
     	<form role="form" method="POST" action="/">
             {{ form.hidden_tag() }}
             {{ wtf.form_errors(form, hiddens="only") }}
-            <div class="form-group required">
-            	<input type="text" class="form-control" id="busca" name="busca" placeholder="Pesquisar" style="width: 90%; display:inline">
-                <button type="submit" class="btn btn-default" id="submit_id">Buscar</button>
+            <div class="form-group required" style="text-align:center">
+            	<input type="text" class="form-control" id="busca" name="busca" placeholder="Por exemplo : meio ambiente ou ecologia" style="width: 60%; display:inline ; font-size:20px;">
+                <button type="submit" class="btn btn-default" id="submit_id" style="width: 20%; font-size:15px; display:inline">Pesquisar</button>
             </div>
             {% if dados %}
-                A busca retornou: {{ dados }}.
-            {% endif %}
+                <p class="lead" style="font-size: 18px" >Têm <b> {{nResultados}} </b> autores relacionados com a(s) palavra(s) <b> {{busca}} </b> : <br><br> <p>
+
+                <p class="results" style="text-align:center">
+                {% for author in dados %}
+                {{ author }} <br>
+                {% endfor %} 
+            {% endif %} </p>
         </form>
     {% endif %}
 </div>
