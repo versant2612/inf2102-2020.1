@@ -18,8 +18,8 @@
                 <p class="lead" style="font-size: 18px" >Têm <b> {{nResultados}} </b> autores relacionados com a(s) palavra(s) <b> {{busca}} </b> : <br><br> <p>
 
                 <p class="results">
-                {% for author in dados %}
-                    <a href="{{ url_for('about', pessoa=author) }}">{{ author }} <br>
+                {% for author,nOcorrencias in dados.items():%}
+                    <a href="{{ url_for('about', pessoa=author, busca=busca) }}">{{ author.upper() }} - {{ nOcorrencias }} ocorrência(s)<br>
                 {% endfor %} 
             {% endif %} </p>
         </form>

@@ -4,7 +4,42 @@
 {% block title %}About{% endblock %}
 {% block body %}
 <div class="jumbotron">
-	<h3>{{ pessoa }}</h3>
+	<h3>{{ pessoa.upper() }} - Termo pesquisado: '{{ busca }}'</h3>
+
+{% if dados %}
+	<h3>ARTIGOS</h3><br>
+	<p class="lead" style="font-size: 18px" >
+		{% for artigo in dados.get('artigos') %}
+		{{artigo}} <br>
+		{% endfor %}
+    </p>
+
+
+	<h3>LIVROS</h3>
+	<p class="lead" style="font-size: 18px" >
+		{% for livro in dados.get('livros') %}
+		{{livro}} <br>
+		{% endfor %}
+    </p>
+
+
+	<h3>TESES</h3>
+	<p class="lead" style="font-size: 18px" >
+		{% for tese in dados.get('teses') %}
+		{{tese}} <br>
+		{% endfor %}
+    </p>
+
+
+	<h3>CAPITULOS</h3>
+	<p class="lead" style="font-size: 18px" >
+		{% for capitulo in dados.get('capitulos') %}
+		{{capitulo}} <br>
+		{% endfor %}
+    </p>
+
+
+{% endif %} </p>
 	<hr>
 </div>
 {% endblock %}
