@@ -144,52 +144,53 @@ def index():
 
 @app.route('/about')
 def about():
+	pessoa = request.args.get('pessoa')
 
-	with connection.lattes21:
-		print('Connected to repository lattes21')
-		print('Size of statements:', connection.lattes21.size())
+	# with connection.lattes21:
+	# 	print('Connected to repository lattes21')
+	# 	print('Size of statements:', connection.lattes21.size())
 
-		# Trying queries
-		query_string = "SELECT ?s ?p ?o  WHERE {?s dc:language ?o .} LIMIT 20"
-		tuple_query = connection.lattes21.prepareTupleQuery(QueryLanguage.SPARQL, query_string)
-		result = tuple_query.evaluate()
-		with result:
-			print("s,             p,             o:")
-			for binding_set in result:
-				s = binding_set.getValue("s")
-				p = binding_set.getValue("p")
-				o = binding_set.getValue("o")
-				print("%s %s %s" % (s, p, o))
-
-
-		print("\n\n\n")
-		print('SPARQL filter match')
-		connection.lattes21.executeTupleQuery(query_string, output=True)  # Shows directly in console
-
-		print("\n\n\n")
-		print('Other type of query')
-		connection.lattes21.executeTupleQuery('''SELECT ?s ?o WHERE {?s ?p ?o .
-			filter (fn:lower-case(str(?o)) = "português")} LIMIT 20''', output=True)
+	# 	# Trying queries
+	# 	query_string = "SELECT ?s ?p ?o  WHERE {?s dc:language ?o .} LIMIT 20"
+	# 	tuple_query = connection.lattes21.prepareTupleQuery(QueryLanguage.SPARQL, query_string)
+	# 	result = tuple_query.evaluate()
+	# 	with result:
+	# 		print("s,             p,             o:")
+	# 		for binding_set in result:
+	# 			s = binding_set.getValue("s")
+	# 			p = binding_set.getValue("p")
+	# 			o = binding_set.getValue("o")
+	# 			print("%s %s %s" % (s, p, o))
 
 
-		print("\n\n\n")
-		print('Ordered languages')
-		connection.lattes21.executeTupleQuery('''SELECT DISTINCT ?o WHERE {?s dc:language ?o .} ORDER BY ?o''', output=True)
+	# 	print("\n\n\n")
+	# 	print('SPARQL filter match')
+	# 	connection.lattes21.executeTupleQuery(query_string, output=True)  # Shows directly in console
+
+	# 	print("\n\n\n")
+	# 	print('Other type of query')
+	# 	connection.lattes21.executeTupleQuery('''SELECT ?s ?o WHERE {?s ?p ?o .
+	# 		filter (fn:lower-case(str(?o)) = "português")} LIMIT 20''', output=True)
 
 
-		print("\n\n\n")
-		# Trying statements
-		print('Statements where object = "Português"')
-		portugues = connection.lattes21.createLiteral("Português") # Para criar subject é createURI()
-		statements = connection.lattes21.getStatements(subject=None, predicate=None, object=portugues, limit=20) # It is a RepositoryResult object
-		with statements:
-			#statements.enableDuplicateFilter()
-			for statement in statements:
-				print(statement)
+	# 	print("\n\n\n")
+	# 	print('Ordered languages')
+	# 	connection.lattes21.executeTupleQuery('''SELECT DISTINCT ?o WHERE {?s dc:language ?o .} ORDER BY ?o''', output=True)
+
+
+	# 	print("\n\n\n")
+	# 	# Trying statements
+	# 	print('Statements where object = "Português"')
+	# 	portugues = connection.lattes21.createLiteral("Português") # Para criar subject é createURI()
+	# 	statements = connection.lattes21.getStatements(subject=None, predicate=None, object=portugues, limit=20) # It is a RepositoryResult object
+	# 	with statements:
+	# 		#statements.enableDuplicateFilter()
+	# 		for statement in statements:
+	# 			print(statement)
 
 
 
-	return render_template("about.html")
+	return render_template("about.html", pessoa=pessoa)
 
 
 @app.route('/testes')

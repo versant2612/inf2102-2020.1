@@ -19,11 +19,12 @@
 
                 <p class="results">
                 {% for author in dados %}
-                {{ author }} <br>
+                    <a href="{{ url_for('about', pessoa=author) }}">{{ author }} <br>
                 {% endfor %} 
             {% endif %} </p>
         </form>
     {% endif %}
 </div>
 {% endblock %}
+
 
