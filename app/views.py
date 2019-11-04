@@ -66,6 +66,7 @@ def about():
 		livros=[]
 		teses=[]
 		capitulos=[]
+		documentos=[]
 
 		for binding_set in res21:
 			tipo = str(binding_set.getValue("Tipo"))
@@ -77,14 +78,17 @@ def about():
 				livros.append(str(binding_set.getValue("Title"))[1:-1])
 			elif tipo == 'Thesis' :
 				teses.append(str(binding_set.getValue("Title"))[1:-1])
-			else:
+			elif tipo == 'Chapter':
 				capitulos.append(str(binding_set.getValue("Title"))[1:-1])
+			else:
+				documentos.append(str(binding_set.getValue("Title"))[1:-1])
 
 
 		resultsDic['artigos']= artigos
 		resultsDic['livros']= livros
 		resultsDic['teses']= teses
 		resultsDic['capitulos']= capitulos
+		resultsDic['documentos']= documentos
 
 	return render_template("about.html", pessoa=pessoa, busca=busca, dados=resultsDic)
 

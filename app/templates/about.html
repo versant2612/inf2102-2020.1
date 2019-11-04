@@ -4,18 +4,18 @@
 {% block title %}About{% endblock %}
 {% block body %}
 <div class="jumbotron">
-	<h3>{{ pessoa.upper() }} - Termo pesquisado: '{{ busca }}'</h3>
+	<h3><b>{{ pessoa.upper() }} - Termo pesquisado: '{{ busca }}'</b></h3>
 
 {% if dados %}
-	<h3>ARTIGOS</h3><br>
-	<p class="lead" style="font-size: 18px" >
+	<h3><b>ARTIGOS</b></h3
+>	<p class="lead" style="font-size: 18px" >
 		{% for artigo in dados.get('artigos') %}
 		{{artigo}} <br>
 		{% endfor %}
     </p>
 
 
-	<h3>LIVROS</h3>
+	<h3><b>LIVROS</b></h3>
 	<p class="lead" style="font-size: 18px" >
 		{% for livro in dados.get('livros') %}
 		{{livro}} <br>
@@ -23,7 +23,7 @@
     </p>
 
 
-	<h3>TESES</h3>
+	<h3><b>TESES</b></h3>
 	<p class="lead" style="font-size: 18px" >
 		{% for tese in dados.get('teses') %}
 		{{tese}} <br>
@@ -31,10 +31,17 @@
     </p>
 
 
-	<h3>CAPITULOS</h3>
+	<h3><b>CAPITULOS</b></h3>
 	<p class="lead" style="font-size: 18px" >
 		{% for capitulo in dados.get('capitulos') %}
 		{{capitulo}} <br>
+		{% endfor %}
+    </p>
+
+    <h3><b>DOCUMENTOS</b></h3>
+	<p class="lead" style="font-size: 18px" >
+		{% for documento in dados.get('documentos') %}
+		{{documento}} <br>
 		{% endfor %}
     </p>
 
