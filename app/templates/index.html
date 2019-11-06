@@ -3,7 +3,12 @@
 {% extends "base.html" %}
 {% block title %}Home{% endblock %}
 {% block body %}
-<div class="jumbotron">
+<div class="jumbotron" style="padding-top: 10px">
+    <div class="row">
+        <div class="col-sm-4"><img src="../static/images/puc-rio-logo.png" width="80" height="100" align="left"></div>
+        <div class="col-sm-4"><img src="../static/images/logo-nima.png" width="250" height="100" align="middle"></div>
+        <div class="col-sm-4"><img src="../static/images/lodoDI.png" width="149" height="90" align="right"></div>
+    </div>
     <h1>Bem-vindo ao Sistema NIMA</h1>
     <p class="lead" style="font-size: 25px">Digite as palavras-chave que quer pesquisar: </p><br>
     {% if form %}
@@ -19,7 +24,7 @@
 
                 <p class="results">
                 {% for author,nOcorrencias in dados.items():%}
-                    <a href="{{ url_for('about', pessoa=author, busca=busca) }}">{{ author.upper() }} - {{ nOcorrencias }} ocorrência(s)<br>
+                    <a href="{{ url_for('about', pessoa=author, busca=busca) }}">{{ author.upper() }} - {{ nOcorrencias }} ocorrência(s)</a><br>
                 {% endfor %} 
             {% endif %} </p>
         </form>

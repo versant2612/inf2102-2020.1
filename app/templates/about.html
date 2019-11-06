@@ -4,7 +4,13 @@
 {% block title %}About{% endblock %}
 {% block body %}
 <div class="jumbotron">
-	<h3><b>{{ pessoa.upper() }} - Termo pesquisado: '{{ busca }}'</b></h3>
+	<div class="row">
+        <div class="col-sm-4"><img src="../static/images/puc-rio-logo.png" width="80" height="100" align="left"></div>
+        <div class="col-sm-4"><img src="../static/images/logo-nima.png" width="250" height="100" align="middle"></div>
+        <div class="col-sm-4"><img src="../static/images/lodoDI.png" width="149" height="90" align="right"></div>
+    </div>
+	<h3 style="text-align:center"><b>{{ pessoa.upper() }}</b></h3>
+	<h4 style="text-align:center"><b>Termo pesquisado: '{{ busca }}'</b></h4>
 
 {% if dados %}
 	<h3><b>ARTIGOS</b></h3
