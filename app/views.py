@@ -55,6 +55,8 @@ def index():
 		lattes22Rep.close()
 		lattes23Rep.close()
 
+		resultsDic = sorted(resultsDic.items(), key=operator.itemgetter(1,0), reverse=True)
+
 		return render_template("/index.html", form=form, dados=resultsDic, busca=string_buscada, nResultados=nResultados)
 
 	return render_template("/index.html", form=form)
