@@ -3,9 +3,10 @@
 {% extends "base.html" %}
 {% block title %}Home{% endblock %}
 {% block body %}
+
 <div class="jumbotron" style="padding-top: 10px">
     <div class="row">
-        <div class="col-sm-4"><a href="http://www.puc-rio.br/"><img src="../static/images/puc-rio-logo.png" width="80" height="100" align="left"></div></a>
+        <div class="col-sm-4"><a href="http://www.puc-rio.br/"><img src="../static/images/puc-rio-logo.png" width="80" height="115" align="left"></div></a>
         <div class="col-sm-4"><a href="http://www.nima.puc-rio.br/"><img src="../static/images/logo-nima.png" width="250" height="100" align="middle"></div></a>
         <div class="col-sm-4"><a href="http://www.inf.puc-rio.br//"><img src="../static/images/lodoDI.png" width="149" height="90" align="right"></div></a>
     </div>
@@ -17,19 +18,46 @@
             {{ wtf.form_errors(form, hiddens="only") }}
             <div class="form-group required" style="text-align:center">
                 {{ form.busca(class_="form-control", style="width: 60%; display:inline; font-size:20px", placeholder="Por exemplo: meio ambiente ou ecologia")}}
-                <button type="submit" class="btn btn-default" id="submit_id" style="margin-bottom:5px">Pesquisar</button> 
+                <button type="submit" class="btn btn-default" id="submit_id" style="margin-bottom:5px" onclick="waiting()">Pesquisar</button> 
             </div>
+
+            <div id="loading" align="center" style="display:none">
+                <p> Por favor, aguarde. Os dados demoram em geral 30 segundos para serem carregados.</p>
+                <br>
+                <img src="../static/images/loading.gif" alt="Carregando Gráficos">
+            </div>
+            
             {% if dados %}
+
                 <p class="lead_2">Têm <b> {{nResultados}} </b> autores relacionados com a(s) palavra(s) <b> {{busca}} </b> : <p>
 
                 <p class="results">
-                {% for author,nOcorrencias in dados.items():%}
-                    <a href="{{ url_for('about', pessoa=author, busca=busca) }}">{{ author.upper() }} - {{ nOcorrencias }} ocorrência(s)</a><br>
+                {#% for author,nOcorrencias in dados.items():%#}
+                {% for dado in dados: %}
+                    <a href="{{ url_for('about', pessoa=dado[0], busca=busca, nRepositorio=dado[1][1]) }}">{{ dado[0].upper() }} - {{ dado[1][0] }} ocorrência(s)</a><br>
                 {% endfor %} 
             {% endif %} </p>
+
         </form>
     {% endif %}
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+
+<!-- LOADING --->
+<script>
+
+    function waiting(){
+        document.getElementById("loading").style.display="block"; 
+        $('#loading').fadeIn('slow');
+    };
+
+    $(document).ready(function(){
+        $('#loading').fadeOut('slow');
+    });
+
+</script>
+
 {% endblock %}
 
 
