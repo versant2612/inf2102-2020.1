@@ -51,12 +51,13 @@ def about():
 
 	with connection.lattes21 as lattes21:
 
-		queryString = " SELECT DISTINCT (str(?tipo) as ?Tipo) (str(?title) as ?Title) " \
+		queryString = " SELECT DISTINCT (str(?tipo) as ?Tipo) " \
+		"(replace(replace(replace(str(?title),'ê','e'),'â','a'),'ã','a') as ?Title) " \
 		" WHERE{ ?s dc:title ?title; rdf:type ?tipo ; dc:creator ?author. " \
 		" ?author foaf:name ?author_name ." \
 		" filter (regex(fn:lower-case(str(?title)), fn:lower-case('" + busca + "'))) . " \
 		" filter (regex(fn:lower-case(str(?author_name)), fn:lower-case('" + pessoa + "'))) . }" \
-		" ORDER BY ?tipo "
+		" ORDER BY ?Title "
 
 		res21 = lattes21.executeTupleQuery(queryString)
 

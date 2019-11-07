@@ -5,12 +5,12 @@
 {% block body %}
 <div class="jumbotron" style="padding-top: 10px">
     <div class="row">
-        <div class="col-sm-4"><img src="../static/images/puc-rio-logo.png" width="80" height="100" align="left"></div>
-        <div class="col-sm-4"><img src="../static/images/logo-nima.png" width="250" height="100" align="middle"></div>
-        <div class="col-sm-4"><img src="../static/images/lodoDI.png" width="149" height="90" align="right"></div>
+        <div class="col-sm-4"><a href="http://www.puc-rio.br/"><img src="../static/images/puc-rio-logo.png" width="80" height="100" align="left"></div></a>
+        <div class="col-sm-4"><a href="http://www.nima.puc-rio.br/"><img src="../static/images/logo-nima.png" width="250" height="100" align="middle"></div></a>
+        <div class="col-sm-4"><a href="http://www.inf.puc-rio.br//"><img src="../static/images/lodoDI.png" width="149" height="90" align="right"></div></a>
     </div>
     <h1>Bem-vindo ao Sistema NIMA</h1>
-    <p class="lead" style="font-size: 25px">Digite as palavras-chave que quer pesquisar: </p><br>
+    <p class="lead">Digite as palavras-chave que quer pesquisar: </p><br>
     {% if form %}
         <form role="form" method="POST" action="/">
             {{ form.hidden_tag() }}
@@ -20,7 +20,7 @@
                 <button type="submit" class="btn btn-default" id="submit_id" style="margin-bottom:5px">Pesquisar</button> 
             </div>
             {% if dados %}
-                <p class="lead" style="font-size: 18px" >Têm <b> {{nResultados}} </b> autores relacionados com a(s) palavra(s) <b> {{busca}} </b> : <br><br> <p>
+                <p class="lead_2">Têm <b> {{nResultados}} </b> autores relacionados com a(s) palavra(s) <b> {{busca}} </b> : <p>
 
                 <p class="results">
                 {% for author,nOcorrencias in dados.items():%}
