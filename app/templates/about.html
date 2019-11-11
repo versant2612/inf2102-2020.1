@@ -17,39 +17,39 @@
 {% if dados %}
 	<h3><b>ARTIGOS</b></h3
 >	<p class="lead" style="font-size: 18px" >
-		{% for artigo in dados.get('artigos') %}
-		{{artigo}} <br>
+		{% for dadosArtigo in dados.get('artigos') %}
+		{{dadosArtigo[0]}} - {{dadosArtigo[1]}}<br>
 		{% endfor %}
     </p>
 
 
 	<h3><b>LIVROS</b></h3>
 	<p class="lead" style="font-size: 18px" >
-		{% for livro in dados.get('livros') %}
-		{{livro}} <br>
+		{% for dadosLivro in dados.get('livros') %}
+		{{dadosLivro[0]}} - {{dadosLivro[1]}} <br>
 		{% endfor %}
     </p>
 
 
 	<h3><b>TESES</b></h3>
 	<p class="lead" style="font-size: 18px" >
-		{% for tese in dados.get('teses') %}
-		{{tese}} <br>
+		{% for dadosTese in dados.get('teses') %}
+		{{dadosTese[0]}} - {{dadosTese[1]}} <br>
 		{% endfor %}
     </p>
 
 
 	<h3><b>CAPITULOS</b></h3>
 	<p class="lead" style="font-size: 18px" >
-		{% for capitulo in dados.get('capitulos') %}
-		{{capitulo}} <br>
+		{% for dadosCapitulo in dados.get('capitulos') %}
+		{{dadosCapitulo[0]}} - {{dadosCapitulo[1]}} <br>
 		{% endfor %}
     </p>
 
     <h3><b>DOCUMENTOS</b></h3>
 	<p class="lead" style="font-size: 18px" >
-		{% for documento in dados.get('documentos') %}
-		{{documento}} <br>
+		{% for dadosDocumento in dados.get('documentos') %}
+		{{dadosDocumento[0]}} - {{dadosDocumento[1]}} <br>
 		{% endfor %}
     </p>
 

@@ -34,8 +34,10 @@
                 <p class="results">
                 {#% for author,nOcorrencias in dados.items():%#}
                 {% for dado in dados: %}
+                
                     <a href="{{ url_for('about', pessoa=dado[0], busca=busca, nRepositorio=dado[1][1]) }}">{{ dado[0].upper() }} - {{ dado[1][0] }} ocorrência(s)</a><br>
                 {% endfor %} 
+
             {% endif %} </p>
 
         </form>
