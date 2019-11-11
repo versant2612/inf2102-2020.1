@@ -12,7 +12,7 @@ from . import connection
 from .forms import SearchForm
 import operator
 
-from flask_paginate import Pagination, get_page_parameter, get_page_args
+#from flask_paginate import Pagination, get_page_parameter, get_page_args
 
 @app.route('/', methods=['GET','POST'])
 def index():
