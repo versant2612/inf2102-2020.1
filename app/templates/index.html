@@ -34,14 +34,14 @@
                 <thead>
                     <tr>
                         <th width="40%" class="th-sm" style="text-align:center; font-size: 20px">Nome</th>
-                        <th width="20%" class="th-sm" style="text-align:center font-size: 20px">Ocorrências</th>
+                        <th width="20%" class="th-sm" style="text-align:center; font-size: 20px">Ocorrências</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for dado in dados: %}
                     <tr>
                         <td><a href="{{ url_for('about', pessoa=dado[0], busca=busca, nRepositorio=dado[1][1]) }}" style="font-size: 20px">{{ dado[0].upper() }}</a><br></td>
-                        <td style="font-size: 20px">{{ dado[1][0]|int }}</td>
+                        <td style="text-align:center; font-size: 20px" >{{ dado[1][0]|int }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
