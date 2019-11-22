@@ -5,56 +5,65 @@
 {% block body %}
 
 <div class="jumbotron">
-	<div class="row">
-        <div class="col-sm-4"><a href="http://www.puc-rio.br/"><img src="../static/images/puc-rio-logo.png" width="80" height="115" align="left"></div></a>
-        <div class="col-sm-4"><a href="http://www.nima.puc-rio.br/"><img src="../static/images/logo-nima.png" width="250" height="100" align="middle"></div></a>
-        <div class="col-sm-4"><a href="http://www.inf.puc-rio.br//"><img src="../static/images/lodoDI.png" width="149" height="90" align="right"></div></a>
-    </div>
+	<div class="jumbotron" style="padding-top: 10px">
+        <div class="row">
+	        <div class="col-sm-4"><a href="http://www.puc-rio.br/"><img src="../static/images/puc-rio-logo.png" width="70" height="115" align="left"></div></a>
+	        <div class="col-sm-4"><a href="http://www.nima.puc-rio.br/"><img src="../static/images/logo-nima.png" width="250" height="100" align="middle"></div></a>
+	        <div class="col-sm-4"><a href="http://www.inf.puc-rio.br//"><img src="../static/images/lodoDI.png" width="180" height="95" align="right"></div></a>
+    	</div>
     <br>
 	<h3 style="text-align:center"><b>{{ pessoa.upper() }}</b></h3>
 	<h4 style="text-align:center"><b>Termo pesquisado: '{{ busca }}'</b></h4>
 
 {% if dados %}
-	<h3><b>ARTIGOS</b></h3
->	<p class="lead" style="font-size: 18px" >
-		{% for dadosArtigo in dados.get('artigos') %}
-		{{dadosArtigo[0]}} - {{dadosArtigo[1]}}<br>
-		{% endfor %}
-    </p>
+	{% if dados.get('artigos')|length %}
+		<h3><b>ARTIGOS</b></h3>	
+		<p class="lead" style="font-size: 18px" >
+			{% for dadosArtigo in dados.get('artigos') %}
+				{{dadosArtigo[0]}} - {{dadosArtigo[1]}}<br>
+			{% endfor %}
+	    </p>
+	{% endif %}
 
+	{% if dados.get('livros')|length %}
+		<h3><b>LIVROS</b></h3>
+		<p class="lead" style="font-size: 18px" >
+			{% for dadosLivro in dados.get('livros') %}	
+				{{dadosLivro[0]}} - {{dadosLivro[1]}}<br>
+			{% endfor %}
+	    </p>
+	{% endif %}
 
-	<h3><b>LIVROS</b></h3>
-	<p class="lead" style="font-size: 18px" >
-		{% for dadosLivro in dados.get('livros') %}
-		{{dadosLivro[0]}} - {{dadosLivro[1]}} <br>
-		{% endfor %}
-    </p>
+	{% if dados.get('teses')|length %}
+		<h3><b>TESES</b></h3>
+		<p class="lead" style="font-size: 18px" >
+			{% for dadosTese in dados.get('teses') %}
+				{{dadosTese[0]}} - {{dadosTese[1]}} <br>
+			{% endfor %}
+	    </p>
+	{% endif %}
 
+	{% if dados.get('capitulos')|length %}
+		<h3><b>CAPITULOS</b></h3>
+		<p class="lead" style="font-size: 18px" >
+			{% for dadosCapitulo in dados.get('capitulos') %}
+				{{dadosCapitulo[0]}} - {{dadosCapitulo[1]}} <br>
+			{% endfor %}
+	    </p>
+	{% endif %}
 
-	<h3><b>TESES</b></h3>
-	<p class="lead" style="font-size: 18px" >
-		{% for dadosTese in dados.get('teses') %}
-		{{dadosTese[0]}} - {{dadosTese[1]}} <br>
-		{% endfor %}
-    </p>
-
-
-	<h3><b>CAPITULOS</b></h3>
-	<p class="lead" style="font-size: 18px" >
-		{% for dadosCapitulo in dados.get('capitulos') %}
-		{{dadosCapitulo[0]}} - {{dadosCapitulo[1]}} <br>
-		{% endfor %}
-    </p>
-
-    <h3><b>DOCUMENTOS</b></h3>
-	<p class="lead" style="font-size: 18px" >
-		{% for dadosDocumento in dados.get('documentos') %}
-		{{dadosDocumento[0]}} - {{dadosDocumento[1]}} <br>
-		{% endfor %}
-    </p>
+	{% if dados.get('documentos')|length %}
+	    <h3><b>DOCUMENTOS</b></h3>
+		<p class="lead" style="font-size: 18px" >
+			{% for dadosDocumento in dados.get('documentos') %}
+				{{dadosDocumento[0]}} - {{dadosDocumento[1]}} <br>
+			{% endfor %}
+	    </p>
+	{% endif %}
 
 
 {% endif %} </p>
 	<hr>
 </div>
+
 {% endblock %}
