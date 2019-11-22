@@ -36,11 +36,13 @@ def index():
 			for numRepo in range(0,4):
 				lattesUsed = repositorios[numRepo]
 				#with connection.lattes as lattesRep:
-				queryString = " SELECT ?author_name (COUNT(DISTINCT ?s) AS ?nOcorrencias) " \
-				" WHERE{ ?s dc:title ?title; dc:creator ?author. " \
+				queryString = " SELECT ?author_name ?nOcorrencias " \
+				" WHERE{ ?s foaf:name ?author_name; ?univOrigem 'PUC-Rio' . " \
+				" { SELECT ?author_name (COUNT(DISTINCT ?s) AS ?nOcorrencias) " \
+				" WHERE {?s dc:title ?title; dc:creator ?author. " \
 				" ?author foaf:name ?author_name ." \
 				" filter (regex(fn:lower-case(str(?title)), fn:lower-case('" + string_buscada + "'))) . }" \
-				"  GROUP BY ?author_name ORDER BY DESC(?nOcorrencias)"
+				"  GROUP BY ?author_name }} ORDER BY DESC(?nOcorrencias)"
 
 				result = lattesUsed.executeTupleQuery(queryString)
 
