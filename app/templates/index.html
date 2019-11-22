@@ -28,18 +28,25 @@
             </div>
             
             {% if dados %}
+            <p class="lead_2">Têm <b> {{nResultados}} </b> autores relacionados com a(s) palavra(s) <b> {{busca}} </b> : <p>
 
-                <p class="lead_2">Têm <b> {{nResultados}} </b> autores relacionados com a(s) palavra(s) <b> {{busca}} </b> : <p>
-
-                <p class="results">
-                {#% for author,nOcorrencias in dados.items():%#}
-                {% for dado in dados: %}
-                
-                    <a href="{{ url_for('about', pessoa=dado[0], busca=busca, nRepositorio=dado[1][1]) }}">{{ dado[0].upper() }} - {{ dado[1][0] }} ocorrência(s)</a><br>
-                {% endfor %} 
-
-            {% endif %} </p>
-
+            <table class="dt-responsive table table-striped table-bordered" id="tabela">
+                <thead>
+                    <tr>
+                        <th width="40%" class="th-sm" style="text-align:center; font-size: 20px">Nome</th>
+                        <th width="20%" class="th-sm" style="text-align:center font-size: 20px">Ocorrências</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for dado in dados: %}
+                    <tr>
+                        <td><a href="{{ url_for('about', pessoa=dado[0], busca=busca, nRepositorio=dado[1][1]) }}" style="font-size: 20px">{{ dado[0].upper() }}</a><br></td>
+                        <td style="font-size: 20px">{{ dado[1][0]|int }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            {% endif %} 
+            </table>
         </form>
     {% endif %}
 </div>
@@ -58,6 +65,37 @@
         $('#loading').fadeOut('slow');
     });
 
+</script>
+
+
+<script>
+$(document).ready(function() {
+    var table = $('#tabela').DataTable( {
+      
+      /*MUDA LINGUAGEM*/
+        "language": {
+            "lengthMenu": "Mostrar _MENU_ pessoas por página",
+            "zeroRecords": "Não encontramos nada com esse filtro! :(",
+            "info": "Mostrando _PAGE_ de _PAGES_",
+            "infoEmpty": "Não há ocorrências com esse filtro",
+            "infoFiltered": "(filtrado de um total de _MAX_ pessoas)",
+          "paginate": {
+        "first": "Primeiro",
+        "last": "Último",
+        "next": "Próximo",
+        "previous": "Anterior",
+      },
+      "loadingRecords": "Carregando...",
+      "search": "Filtrar:",
+          "aria": {
+        "sortAscending": ": Ative para ordenar a coluna de forma ascendente",
+        "sortDescending": ": Ative para odenar a coluna de forma descendente"
+      }
+        },
+        /*ORDENA POR ROLE POR DEFAULT*/
+        "order": [[ 1, "desc" ]] 
+    } );
+} );
 </script>
 
 {% endblock %}
