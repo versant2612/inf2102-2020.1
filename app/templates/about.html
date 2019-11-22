@@ -17,45 +17,55 @@
 {% if dados %}
 	{% if dados.get('artigos')|length %}
 		<h3><b>ARTIGOS</b></h3>	
-		<p class="lead" style="font-size: 18px" >
+		<p class="lead" style="font-size: 18px; padding: 20px;" >
 			{% for dadosArtigo in dados.get('artigos') %}
-				{{dadosArtigo[0]}} - {{dadosArtigo[1]}}<br>
+				  <b> * {% for autor in dados.get('artigos')[dadosArtigo[0],dadosArtigo[1]] %}
+				{{autor}}, {% endfor %}</b>
+				{{dadosArtigo[0]}}, {{dadosArtigo[1]}} <br>
 			{% endfor %}
 	    </p>
 	{% endif %}
 
 	{% if dados.get('livros')|length %}
 		<h3><b>LIVROS</b></h3>
-		<p class="lead" style="font-size: 18px" >
+		<p class="lead" style="font-size: 18px; padding: 20px;" >
 			{% for dadosLivro in dados.get('livros') %}	
-				{{dadosLivro[0]}} - {{dadosLivro[1]}}<br>
+				<b> * {% for autor in dados.get('livros')[dadosLivro[0],dadosLivro[1]] %}
+				{{autor}}, {% endfor %}</b>
+				{{dadosLivro[0]}}, {{dadosLivro[1]}} <br>
 			{% endfor %}
 	    </p>
 	{% endif %}
 
 	{% if dados.get('teses')|length %}
 		<h3><b>TESES</b></h3>
-		<p class="lead" style="font-size: 18px" >
+		<p class="lead" style="font-size: 18px; padding: 20px;" >
 			{% for dadosTese in dados.get('teses') %}
-				{{dadosTese[0]}} - {{dadosTese[1]}} <br>
+				<b> * {% for autor in dados.get('teses')[dadosTese[0],dadosTese[1]] %}
+				{{autor}}, {% endfor %}</b>
+				{{dadosTese[0]}}, {{dadosTese[1]}} <br>
 			{% endfor %}
 	    </p>
 	{% endif %}
 
 	{% if dados.get('capitulos')|length %}
 		<h3><b>CAPITULOS</b></h3>
-		<p class="lead" style="font-size: 18px" >
+		<p class="lead" style="font-size: 18px; padding: 20px;" >
 			{% for dadosCapitulo in dados.get('capitulos') %}
-				{{dadosCapitulo[0]}} - {{dadosCapitulo[1]}} <br>
+				<b> * {% for autor in dados.get('capitulos')[dadosCapitulo[0],dadosCapitulo[1]] %}
+				{{autor}}, {% endfor %}</b>
+				{{dadosCapitulo[0]}}, {{dadosCapitulo[1]}} <br>
 			{% endfor %}
 	    </p>
 	{% endif %}
 
 	{% if dados.get('documentos')|length %}
 	    <h3><b>DOCUMENTOS</b></h3>
-		<p class="lead" style="font-size: 18px" >
+		<p class="lead" style="font-size: 18px; padding: 20px;" >
 			{% for dadosDocumento in dados.get('documentos') %}
-				{{dadosDocumento[0]}} - {{dadosDocumento[1]}} <br>
+				<b> * {% for autor in dados.get('documentos')[dadosDocumento[0],dadosDocumento[1]] %}
+				{{autor}}, {% endfor %}</b>
+				{{dadosDocumento[0]}}, {{dadosDocumento[1]}} <br>
 			{% endfor %}
 	    </p>
 	{% endif %}

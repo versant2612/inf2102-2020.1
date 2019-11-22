@@ -9,6 +9,7 @@ from . import connection
 from .forms import SearchForm
 import operator
 import threading
+from collections import defaultdict
 
 def searchInRepository(repository, string_buscada, resultsDic, numRepo):
 	lattesRep = repository
@@ -101,37 +102,57 @@ def about():
 			lattesRep = connection.lattes23
 
 		queryString = " SELECT DISTINCT (str(?tipo) as ?Tipo) " \
-		"(replace(replace(replace(str(?title),'ê','e'),'â','a'),'ã','a') as ?Title)  ?data" \
+		"(replace(replace(replace(str(?title),'ê','e'),'â','a'),'ã','a') as ?Title)  ?data ?author2_citationName " \
 		" WHERE{ ?s dc:title ?title; rdf:type ?tipo ; dcterms:issued ?data; dc:creator ?author. " \
 		" ?author foaf:name ?author_name ." \
+		" {SELECT ?title ?author2_citationName WHERE { ?s dc:title ?title; dc:creator ?author2_id . " \
+		" ?author2_id foaf:citationName ?author2_citationName . } }" \
 		" filter (regex(fn:lower-case(str(?title)), fn:lower-case('" + busca + "'))) . " \
 		" filter (regex(fn:lower-case(str(?author_name)), fn:lower-case('" + pessoa + "'))) . }" \
 		" ORDER BY ?Title "
 
 		resultados = lattesRep.executeTupleQuery(queryString)
-		resultsDic={}
+		resultsDic = {}
 
-		artigos=[]
-		livros=[]
-		teses=[]
-		capitulos=[]
-		documentos=[]
+		artigos = {}
+		livros = {}
+		teses = {}
+		capitulos = {}
+		documentos = {}
 
 		for binding_set in resultados:
 			tipo = str(binding_set.getValue("Tipo"))
 			tipo = tipo.replace('http://purl.org/ontology/bibo/',"").strip('"')
 			data = int(str(binding_set.getValue("data")).strip('"'))
+			title = str(binding_set.getValue("Title"))[1:-1]
+			autor = str(binding_set.getValue("author2_citationName"))[1:-1].split(';')[0]
 
 			if tipo == 'Article' :
-				artigos.append([str(binding_set.getValue("Title"))[1:-1],data])
+				if (title,data) in artigos:
+					artigos[title,data].append(autor)
+				else:
+					artigos[title,data] = [autor]
+				#artigos.setdefault((title,data),[]).append(autor)
 			elif tipo == 'Book' :
-				livros.append([str(binding_set.getValue("Title"))[1:-1],data])
+				if (title,data) in livros:
+					livros[title,data].append(autor)
+				else:
+					livros[title,data] = [autor]
 			elif tipo == 'Thesis' :
-				teses.append([str(binding_set.getValue("Title"))[1:-1],data])
+				if (title,data) in teses:
+					teses[title,data].append(autor)
+				else:
+					teses[title,data] = [autor]
 			elif tipo == 'Chapter':
-				capitulos.append([str(binding_set.getValue("Title"))[1:-1],data])
+				if (title,data) in capitulos:
+					capitulos[title,data].append(autor)
+				else:
+					capitulos[title,data] = [autor]
 			else:
-				documentos.append([str(binding_set.getValue("Title"))[1:-1],data])
+				if (title,data) in documentos:
+					documentos[title,data].append(autor)
+				else:
+					documentos[title,data] = [autor]
 
 		resultsDic['artigos']= artigos
 		resultsDic['livros']= livros
