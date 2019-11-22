@@ -3,16 +3,42 @@ from franz.openrdf.sail.allegrographserver import AllegroGraphServer
 from franz.openrdf.repository.repository import Repository
 from franz.openrdf.query.query import QueryLanguage
 from franz.openrdf.connect import ag_connect
-
 from flask import render_template, request
-
 from app import app
-
 from . import connection
 from .forms import SearchForm
 import operator
+import threading
 
-#from flask_paginate import Pagination, get_page_parameter, get_page_args
+def searchInRepository(repository, string_buscada, resultsDic, numRepo):
+	lattesRep = repository
+	queryString = " SELECT ?author_name ?nOcorrencias " \
+	" WHERE { ?s foaf:name ?author_name; ?univOrigem 'PUC-Rio' . " \
+	" { SELECT ?author_name (COUNT(DISTINCT ?s) AS ?nOcorrencias) " \
+	" WHERE{ ?s dc:title ?title; dc:creator ?author. " \
+	" ?author foaf:name ?author_name ." \
+	" filter (regex(fn:lower-case(str(?title)), fn:lower-case('" + string_buscada + "'))) . }" \
+	"  GROUP BY ?author_name }} ORDER BY DESC(?nOcorrencias)"
+
+	result = lattesRep.executeTupleQuery(queryString)
+	#nResults[numRepo] = result.rowCount() # number of elements in the result
+	for binding_set in result:
+		authorName = str(binding_set.getValue("author_name"))
+		nOcorrencias = int(str(binding_set.getValue("nOcorrencias")).replace('"^^<http://www.w3.org/2001/XMLSchema#integer>',"").strip('"'))
+		authorName=authorName[1:-1] # fora os " "
+		resultsDic.update({authorName : [nOcorrencias,numRepo]})
+
+	lattesRep.close()
+
+def mergeDict(dict1, dict2):
+   ''' Merge dictionaries and keep values of common keys in list'''
+   dict3 = {**dict1, **dict2}
+   for key, value in dict3.items():
+       if key in dict1 and key in dict2:
+               dict3[key] = [value , dict1[key]]
+ 
+   return dict3
+
 
 @app.route('/', methods=['GET','POST'])
 def index():
@@ -22,60 +48,34 @@ def index():
 	if request.method == 'POST':
 		string_buscada = form.busca.data
 
-		resultsDic ={}
+		resultsLattes1 = {}
+		resultsLattes21= {}
+		resultsLattes22= {}
+		resultsLattes23 = {}
+
+		#nResults = [0,0,0,0]
 
 		try:
-			lattesRep = connection.lattes
-			lattes21Rep = connection.lattes21
-			lattes22Rep = connection.lattes22
-			lattes23Rep = connection.lattes23
+			t1 = threading.Thread(target=searchInRepository,args=(connection.lattes, string_buscada,resultsLattes1, 0))
+			t21 = threading.Thread(target=searchInRepository,args=(connection.lattes21, string_buscada,resultsLattes21, 1))
+			t22 = threading.Thread(target=searchInRepository,args=(connection.lattes22, string_buscada,resultsLattes22, 2))
+			t23 = threading.Thread(target=searchInRepository,args=(connection.lattes23, string_buscada,resultsLattes23, 3))
 
-			repositorios = [lattesRep,lattes21Rep,lattes22Rep,lattes23Rep]
-			nResultados = 0
+			threads = [t1,t21,t22,t23]
 
-			for numRepo in range(0,4):
-				lattesUsed = repositorios[numRepo]
-				#with connection.lattes as lattesRep:
-				queryString = " SELECT ?author_name ?nOcorrencias " \
-				" WHERE{ ?s foaf:name ?author_name; ?univOrigem 'PUC-Rio' . " \
-				" { SELECT ?author_name (COUNT(DISTINCT ?s) AS ?nOcorrencias) " \
-				" WHERE {?s dc:title ?title; dc:creator ?author. " \
-				" ?author foaf:name ?author_name ." \
-				" filter (regex(fn:lower-case(str(?title)), fn:lower-case('" + string_buscada + "'))) . }" \
-				"  GROUP BY ?author_name }} ORDER BY DESC(?nOcorrencias)"
+			for t in threads:
+				t.start()
 
-				result = lattesUsed.executeTupleQuery(queryString)
+			for t in threads:
+				t.join()
 
-				nResultados += result.rowCount() # number of elements in the result
+			#resultsFinal = mergeDict(resultsLattes1, resultsLattes21)
+			resultsFinal = {**resultsLattes1, **resultsLattes21, **resultsLattes22, **resultsLattes23}
 
-				for binding_set in result:
-					authorName = str(binding_set.getValue("author_name"))
-					nOcorrencias = int(str(binding_set.getValue("nOcorrencias")).replace('"^^<http://www.w3.org/2001/XMLSchema#integer>',"").strip('"'))
-					authorName=authorName[1:-1] # fora os " "
-					#results.append(authorName)
-					resultsDic.update({authorName : [nOcorrencias,numRepo]})
+			resultsFinal = sorted(resultsFinal.items(), key=operator.itemgetter(1,0), reverse=True)
+			print(resultsFinal)
 
-			lattesRep.close()
-			lattes21Rep.close()
-			lattes22Rep.close()
-			lattes23Rep.close()
-
-			resultsDic = sorted(resultsDic.items(), key=operator.itemgetter(1,0), reverse=True)
-
-
-		# search = False
-		# q = request.args.get('q')
-		# if q:
-		# 	search = True
-
-		# page, per_page, offset = get_page_args(page_parameter='page',
-  #                                          per_page_parameter='per_page')
-		# dados_paginados = resultsDic[]
-
-		#page = request.args.get(get_page_parameter(), type=int, default=1)
-		# pagination = Pagination(page=page, per_page=10, total=len(resultsDic), search=search, css_framework="bootstrap3")
-
-			return render_template("/index.html", form=form, dados=resultsDic, busca=string_buscada, nResultados=nResultados)#, pagination=pagination)
+			return render_template("/index.html", form=form, dados=resultsFinal, busca=string_buscada, nResultados=len(resultsFinal))#, pagination=pagination)
 		
 		except Exception as e:
 			print("Exception : ", e)
