@@ -22,12 +22,17 @@ def searchInRepository(repository, string_buscada, resultsDic, numRepo):
 	"  GROUP BY ?author_name }} ORDER BY DESC(?nOcorrencias)"
 
 	result = lattesRep.executeTupleQuery(queryString)
+	if numRepo == 0:
+		tipo = 'Aluno'
+	else:
+		tipo = 'Professor'
+
 	#nResults[numRepo] = result.rowCount() # number of elements in the result
 	for binding_set in result:
 		authorName = str(binding_set.getValue("author_name"))
 		nOcorrencias = int(str(binding_set.getValue("nOcorrencias")).replace('"^^<http://www.w3.org/2001/XMLSchema#integer>',"").strip('"'))
 		authorName=authorName[1:-1] # fora os " "
-		resultsDic.update({authorName : [nOcorrencias,numRepo]})
+		resultsDic.update({authorName : [nOcorrencias, numRepo, tipo]})
 
 	lattesRep.close()
 
@@ -52,7 +57,6 @@ def index():
 		resultsLattes1 = {}
 		resultsLattes21= {}
 		resultsLattes22= {}
-		resultsLattes23 = {}
 
 		#nResults = [0,0,0,0]
 
@@ -60,9 +64,8 @@ def index():
 			t1 = threading.Thread(target=searchInRepository,args=(connection.lattes, string_buscada,resultsLattes1, 0))
 			t21 = threading.Thread(target=searchInRepository,args=(connection.lattes21, string_buscada,resultsLattes21, 1))
 			t22 = threading.Thread(target=searchInRepository,args=(connection.lattes22, string_buscada,resultsLattes22, 2))
-			t23 = threading.Thread(target=searchInRepository,args=(connection.lattes23, string_buscada,resultsLattes23, 3))
 
-			threads = [t1,t21,t22,t23]
+			threads = [t1,t21,t22]
 
 			for t in threads:
 				t.start()
@@ -71,10 +74,10 @@ def index():
 				t.join()
 
 			#resultsFinal = mergeDict(resultsLattes1, resultsLattes21)
-			resultsFinal = {**resultsLattes1, **resultsLattes21, **resultsLattes22, **resultsLattes23}
+			resultsFinal = {**resultsLattes1, **resultsLattes21, **resultsLattes22}
 
 			resultsFinal = sorted(resultsFinal.items(), key=operator.itemgetter(1,0), reverse=True)
-			print(resultsFinal)
+			#print(resultsFinal)
 
 			return render_template("/index.html", form=form, dados=resultsFinal, busca=string_buscada, nResultados=len(resultsFinal))#, pagination=pagination)
 		
@@ -96,10 +99,8 @@ def about():
 			lattesRep = connection.lattes
 		elif nRepositorio ==1:
 			lattesRep = connection.lattes21
-		elif nRepositorio ==2:
-			lattesRep = connection.lattes22
 		else:
-			lattesRep = connection.lattes23
+			lattesRep = connection.lattes22
 
 		queryString = " SELECT DISTINCT (str(?tipo) as ?Tipo) " \
 		"(replace(replace(replace(str(?title),'ê','e'),'â','a'),'ã','a') as ?Title)  ?data ?author2_citationName " \
@@ -123,7 +124,7 @@ def about():
 		for binding_set in resultados:
 			tipo = str(binding_set.getValue("Tipo"))
 			tipo = tipo.replace('http://purl.org/ontology/bibo/',"").strip('"')
-			data = int(str(binding_set.getValue("data")).strip('"'))
+			data = int(str(binding_set.getValue("data")).strip('"')[-4:])
 			title = str(binding_set.getValue("Title"))[1:-1]
 			autor = str(binding_set.getValue("author2_citationName"))[1:-1].split(';')[0]
 
