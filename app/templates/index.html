@@ -26,31 +26,44 @@
                 <br>
                 <img src="../static/images/loading.gif" alt="Carregando Gráficos">
             </div>
-            
-            {% if dados %}
-            <p class="lead_2">Têm <b> {{nResultados}} </b> autores relacionados com a(s) palavra(s) <b> {{busca}} </b> : <p>
+               
+        
+            <p>O que deseja incluir na busca?*</p>
+            *Caso não houver seleção, o resultado mostrará somente biografias.
+            <div style="text-align: center; font-size: 20px; padding-top: 2% ">
+                Artigos: {{ form.artigos() }}
+                Livros: {{ form.livros() }}
+                Teses: {{ form.teses() }}
+                Capítulos: {{ form.capitulos() }}
+            </div> 
 
-            <table class="dt-responsive table table-striped table-bordered" id="tabela">
-                <thead>
-                    <tr>
-                        <th width="40%" class="th-sm" style="text-align:center; font-size: 20px">Nome</th>
-                        <th width="40%" class="th-sm" style="text-align:center; font-size: 20px">Tipo</th>
-                        <th width="20%" class="th-sm" style="text-align:center; font-size: 20px">Ocorrências</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for dado in dados: %}
-                    <tr>
-                        <td><a href="{{ url_for('about', pessoa=dado[0], busca=busca, nRepositorio=dado[1][1]) }}" style="font-size: 20px">{{ dado[0].upper() }}</a><br></td>
-                        <td style="text-align:center; font-size: 20px" >{{ dado[1][2] }}</td>
-                        <td style="text-align:center; font-size: 20px" >{{ dado[1][0]|int }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
+            <br/>
+            <br/>
+            {% if dados %}
+                <p class="lead_2">Temos <b> {{nResultados}} </b> autores relacionados com a(s) palavra(s) <b> {{busca}} </b> : <p>
+
+                <table class="dt-responsive table table-striped table-bordered" id="tabela">
+                    <thead>
+                        <tr>
+                            <th width="40%" class="th-sm" style="text-align:center; font-size: 20px">Nome</th>
+                            <th width="40%" class="th-sm" style="text-align:center; font-size: 20px">Tipo</th>
+                            <th width="20%" class="th-sm" style="text-align:center; font-size: 20px">Ocorrências</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dado in dados: %}
+                            <tr>
+                                <td><a href="{{ url_for('about', pessoa=dado[0], busca=busca, nRepositorio=dado[1][1]) }}" style="font-size: 20px">{{ dado[0].upper() }}</a><br></td>
+                                <td style="text-align:center; font-size: 20px" >{{ dado[1][2] }}</td>
+                                <td style="text-align:center; font-size: 20px" >{{ dado[1][0]|int }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             {% endif %} 
-            </table>
         </form>
     {% endif %}
+    
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
@@ -77,7 +90,7 @@ $(document).ready(function() {
       /*MUDA LINGUAGEM*/
         "language": {
             "lengthMenu": "Mostrar _MENU_ pessoas por página",
-            "zeroRecords": "Não encontramos nada com esse filtro! :(",
+            "zeroRecords": "Não encontramos nada com esse filtro",
             "info": "Mostrando _PAGE_ de _PAGES_",
             "infoEmpty": "Não há ocorrências com esse filtro",
             "infoFiltered": "(filtrado de um total de _MAX_ pessoas)",

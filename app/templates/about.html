@@ -65,7 +65,7 @@
 			{% for dadosDocumento in dados.get('documentos') %}
 				<b> * {% for autor in dados.get('documentos')[dadosDocumento[0],dadosDocumento[1]] %}
 				{{autor}}, {% endfor %}</b>
-				{{dadosDocumento[0]}}, {{dadosDocumento[1]}} <br>
+				<a target="_tab" href="http://lattes.cnpq.br/{{ idp }}">{{dadosDocumento[0]}}, {{dadosDocumento[1]}}</a><br>
 			{% endfor %}
 	    </p>
 	{% endif %}

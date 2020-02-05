@@ -11,15 +11,78 @@ import operator
 import threading
 from collections import defaultdict
 
-def searchInRepository(repository, string_buscada, resultsDic, numRepo):
+@app.route('/', methods=['GET','POST'])
+def index():
+	form = SearchForm()
+
+	if request.method == 'POST':
+		string_buscada = form.busca.data
+		artigos = form.artigos.data
+		livros = form.livros.data
+		teses = form.teses.data
+		capitulos = form.capitulos.data
+
+		resultsLattes1 = {}
+		resultsLattes21= {}
+		resultsLattes22= {}
+
+		try:
+			t1 = threading.Thread(target=searchInRepository, args=(connection.lattes, string_buscada, resultsLattes1, 0, artigos, livros, teses, capitulos))
+			t21 = threading.Thread(target=searchInRepository, args=(connection.lattes21, string_buscada, resultsLattes21, 1, artigos, livros, teses, capitulos))
+			t22 = threading.Thread(target=searchInRepository, args=(connection.lattes22, string_buscada, resultsLattes22, 2, artigos, livros, teses, capitulos))
+
+			threads = [t1,t21,t22]
+
+			for t in threads:
+				t.start()
+
+			for t in threads:
+				t.join()
+
+			results = {**resultsLattes1, **resultsLattes21, **resultsLattes22}
+			resultsFiltered = {k: v for k, v in results.items() if v[0] != 0}
+			resultsFinal = sorted(resultsFiltered.items(), key=operator.itemgetter(1,0), reverse=True)
+
+			return render_template("/index.html", form=form, dados=resultsFinal, busca=string_buscada, nResultados=len(resultsFinal))
+
+		except Exception as e:
+			print("Exception : ", e)
+			return render_template("error.html")
+
+	return render_template("/index.html", form=form)
+
+def searchInRepository(repository, string_buscada, resultsDic, numRepo, artigos, livros, teses, capitulos):
 	lattesRep = repository
-	queryString = " SELECT ?author_name ?nOcorrencias " \
-	" WHERE { ?s foaf:name ?author_name; ?univOrigem 'PUC-Rio' . " \
-	" { SELECT ?author_name (COUNT(DISTINCT ?s) AS ?nOcorrencias) " \
-	" WHERE{ ?s dc:title ?title; dc:creator ?author. " \
-	" ?author foaf:name ?author_name ." \
-	" filter (regex(fn:lower-case(str(?title)), fn:lower-case('" + string_buscada + "'))) . }" \
-	"  GROUP BY ?author_name }} ORDER BY DESC(?nOcorrencias)"
+
+	incluidos = list()
+	incluidos.append("<http://xmlns.com/foaf/0.1/Document>")
+
+	if artigos != False:	
+		incluidos.append("<http://purl.org/ontology/bibo/Article>") 
+	if livros != False:
+		incluidos.append("<http://purl.org/ontology/bibo/Book>") 
+	if teses != False:
+		incluidos.append("<http://purl.org/ontology/bibo/Thesis>") 
+	if capitulos != False:
+		incluidos.append("<http://purl.org/ontology/bibo/Chapter>") 
+
+	incluidos = ','.join(incluidos)	
+	print(incluidos)
+
+	queryString = " SELECT ?author_name (COUNT(*) AS ?nOcorrencias) " \
+	" { " \
+	" {SELECT ?author_name ?bio " \
+	" WHERE { ?s bio:biography ?bio; foaf:name ?author_name. " \
+	" filter (regex(fn:lower-case(str(?bio)), fn:lower-case('"+ string_buscada +"'))) .}} " \
+	" UNION " \
+	" {SELECT ?author_name ?title " \
+	" WHERE { ?s dc:title ?title; dc:creator ?author; rdf:type ?prod_type. " \
+	" ?author foaf:name ?author_name . " \
+	" filter (regex(fn:lower-case(str(?title)), fn:lower-case('"+ string_buscada +"'))) . " \
+	" filter (?prod_type IN ("+ incluidos +")) .}} " \
+	" } " \
+	" GROUP BY ?author_name " \
+	" ORDER BY DESC(?nOcorrencias) " \
 
 	result = lattesRep.executeTupleQuery(queryString)
 	if numRepo == 0:
@@ -27,7 +90,6 @@ def searchInRepository(repository, string_buscada, resultsDic, numRepo):
 	else:
 		tipo = 'Professor'
 
-	#nResults[numRepo] = result.rowCount() # number of elements in the result
 	for binding_set in result:
 		authorName = str(binding_set.getValue("author_name"))
 		nOcorrencias = int(str(binding_set.getValue("nOcorrencias")).replace('"^^<http://www.w3.org/2001/XMLSchema#integer>',"").strip('"'))
@@ -46,50 +108,9 @@ def mergeDict(dict1, dict2):
    return dict3
 
 
-@app.route('/', methods=['GET','POST'])
-def index():
-
-	form = SearchForm()
-
-	if request.method == 'POST':
-		string_buscada = form.busca.data
-
-		resultsLattes1 = {}
-		resultsLattes21= {}
-		resultsLattes22= {}
-
-		#nResults = [0,0,0,0]
-
-		try:
-			t1 = threading.Thread(target=searchInRepository,args=(connection.lattes, string_buscada,resultsLattes1, 0))
-			t21 = threading.Thread(target=searchInRepository,args=(connection.lattes21, string_buscada,resultsLattes21, 1))
-			t22 = threading.Thread(target=searchInRepository,args=(connection.lattes22, string_buscada,resultsLattes22, 2))
-
-			threads = [t1,t21,t22]
-
-			for t in threads:
-				t.start()
-
-			for t in threads:
-				t.join()
-
-			#resultsFinal = mergeDict(resultsLattes1, resultsLattes21)
-			resultsFinal = {**resultsLattes1, **resultsLattes21, **resultsLattes22}
-
-			resultsFinal = sorted(resultsFinal.items(), key=operator.itemgetter(1,0), reverse=True)
-			#print(resultsFinal)
-
-			return render_template("/index.html", form=form, dados=resultsFinal, busca=string_buscada, nResultados=len(resultsFinal))#, pagination=pagination)
-		
-		except Exception as e:
-			print("Exception : ", e)
-			return render_template("error.html")
-
-	return render_template("/index.html", form=form)
-
-
 @app.route('/about')
 def about():
+
 	pessoa = request.args.get('pessoa')
 	busca = request.args.get('busca')
 	nRepositorio = int(request.args.get('nRepositorio'))
@@ -101,6 +122,15 @@ def about():
 			lattesRep = connection.lattes21
 		else:
 			lattesRep = connection.lattes22
+
+		queryStringId = "SELECT ?id " \
+		" WHERE{ ?s dc:title ?title; bibo:identifier ?id. " \
+		" filter (regex(fn:lower-case(str(?title)), fn:lower-case('CV Lattes de'))) .  " \
+		" filter (regex(fn:lower-case(str(?title)), fn:lower-case('"+ pessoa +"'))) . } " \
+		
+		idpessoa = lattesRep.executeTupleQuery(queryStringId)
+		for binding_set in idpessoa:
+			idp = str(binding_set.getValue("id")).strip('"')
 
 		queryString = " SELECT DISTINCT (str(?tipo) as ?Tipo) " \
 		"(replace(replace(replace(str(?title),'ê','e'),'â','a'),'ã','a') as ?Title)  ?data ?author2_citationName " \
@@ -162,13 +192,11 @@ def about():
 		resultsDic['documentos']= documentos
 		
 		lattesRep.close()
-		return render_template("about.html", pessoa=pessoa, busca=busca, dados=resultsDic)
+		return render_template("about.html", pessoa=pessoa, busca=busca, dados=resultsDic, idp=idp)
 	
 	except Exception as e:
 		print("Exception : ", e)
 		return render_template("error.html")
-
-
 
 
 @app.route('/error')
