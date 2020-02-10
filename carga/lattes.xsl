@@ -11,13 +11,14 @@ Mountain View, California, 94041, USA.
 -->
 
 <!DOCTYPE rdf:RDF [
- <!ENTITY  xsd "http://www.w3.org/2001/XMLSchema#"> 
+ <!ENTITY xsd  "http://www.w3.org/2001/XMLSchema#"> 
  <!ENTITY bibo "http://purl.org/ontology/bibo/">
  <!ENTITY foaf "http://xmlns.com/foaf/0.1/">
- <!ENTITY  geo "http://www.w3.org/2003/01/geo/wgs84_pos#"> 
+ <!ENTITY geo  "http://www.w3.org/2003/01/geo/wgs84_pos#"> 
  <!ENTITY skos "http://www.w3.org/2004/02/skos/core#">
  <!ENTITY doac "http://ramonantonio.net/doac/0.1/">
  <!ENTITY bio  "http://purl.org/vocab/bio/0.1/">
+ <!ENTITY vivo "https://duraspace.org/vivo/">
 ]>
 
 <xsl:stylesheet version="1.0" 
@@ -31,12 +32,13 @@ Mountain View, California, 94041, USA.
 		xmlns:doac="http://ramonantonio.net/doac/0.1/" 
 		xmlns:dcterms="http://purl.org/dc/terms/"
 		xmlns:skos="http://www.w3.org/2004/02/skos/core#" 
-		xmlns:fgvterms="http://www.fgv.br/terms/"
+		xmlns:cnpqterms="http://estatico.cnpq.br/bi/CNPQ/DadosAbertos/Tabelas/AreaConhecimento/area_conhecimento.xsd"
 		xmlns:event="http://purl.org/NET/c4dm/event.owl#" 
 		xmlns:gn="http://www.geonames.org/ontology#" 
 		xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#" 
 		xmlns:bibo="http://purl.org/ontology/bibo/" 
-		xmlns:lattes="http://www.cnpq.br/2001/XSL/Lattes">
+		xmlns:lattes="http://www.cnpq.br/2001/XSL/Lattes"
+		xmlns:vivo="https://duraspace.org/vivo/">
 
   <xsl:output method="xml" encoding="UTF-8" indent="yes" />
   <xsl:param name="ID" />
@@ -46,11 +48,11 @@ Mountain View, California, 94041, USA.
       <xsl:attribute name="xml:base">      
 	<xsl:choose>
 	  <xsl:when test="string-length(/CURRICULO-VITAE/@NUMERO-IDENTIFICADOR)>0">
-	    <xsl:value-of select="concat('http://www.fgv.br/lattes/',
+	    <xsl:value-of select="concat('http://www.nima.puc-rio.br/lattes/',
 				  /CURRICULO-VITAE/@NUMERO-IDENTIFICADOR)"/>
 	  </xsl:when>
 	  <xsl:otherwise>
-	    <xsl:value-of select="concat('http://www.fgv.br/lattes/',$ID)"/>
+	    <xsl:value-of select="concat('http://www.nima.puc-rio.br/lattes/',$ID)"/>
 	  </xsl:otherwise>
 	</xsl:choose>
       </xsl:attribute>
@@ -139,6 +141,18 @@ Mountain View, California, 94041, USA.
       <xsl:apply-templates select="ENDERECO/ENDERECO-PROFISSIONAL/@E-MAIL"/> 
       <xsl:apply-templates select="ENDERECO/ENDERECO-PROFISSIONAL/@HOME-PAGE"/> 
 
+        <xsl:template match="@HOME-PAGE|@HOME-PAGE-DO-TRABALHO">
+    <xsl:if test="normalize-space(.) != ''">
+      <foaf:homepage><xsl:value-of select="."/></foaf:homepage>
+    </xsl:if>
+  </xsl:template>
+
+  <xsl:template match="@E-MAIL">
+    <xsl:if test="normalize-space(.) != ''">
+      <foaf:mbox><xsl:value-of select="."/></foaf:mbox>
+    </xsl:if>
+  </xsl:template>
+
       <bio:biography xml:lang="pt">
 	<xsl:value-of select="RESUMO-CV/@TEXTO-RESUMO-CV-RH" />
       </bio:biography>
@@ -181,57 +195,57 @@ Mountain View, California, 94041, USA.
     <foaf:topic_interest>
       <xsl:choose>
 	<xsl:when test="normalize-space(@NOME-DA-ESPECIALIDADE) != ''">
-	  <fgvterms:Especialidade rdf:nodeID="{generate-id(@NOME-DA-ESPECIALIDADE)}">
+	  <cnpqterms:Especialidade rdf:nodeID="{generate-id(@NOME-DA-ESPECIALIDADE)}">
 	    <skos:prefLabel><xsl:value-of select="@NOME-DA-ESPECIALIDADE"/></skos:prefLabel>
 	    <skos:related>
-	      <fgvterms:subArea rdf:nodeID="{generate-id(@NOME-DA-SUB-AREA-DO-CONHECIMENTO)}">
+	      <cnpqterms:subArea rdf:nodeID="{generate-id(@NOME-DA-SUB-AREA-DO-CONHECIMENTO)}">
 		<skos:prefLabel><xsl:value-of select="@NOME-DA-SUB-AREA-DO-CONHECIMENTO"/></skos:prefLabel>
 		<skos:broader>		    
-		  <fgvterms:Area rdf:nodeID="{generate-id(@NOME-DA-AREA-DO-CONHECIMENTO)}">
+		  <cnpqterms:Area rdf:nodeID="{generate-id(@NOME-DA-AREA-DO-CONHECIMENTO)}">
 		    <skos:prefLabel><xsl:value-of select="@NOME-DA-AREA-DO-CONHECIMENTO"/></skos:prefLabel>
 		    <skos:broader>
-		      <fgvterms:grandeArea rdf:nodeID="{generate-id(@NOME-GRANDE-AREA-DO-CONHECIMENTO)}">
+		      <cnpqterms:grandeArea rdf:nodeID="{generate-id(@NOME-GRANDE-AREA-DO-CONHECIMENTO)}">
 			<skos:prefLabel>
 			  <xsl:value-of select="@NOME-GRANDE-AREA-DO-CONHECIMENTO"/>
 			</skos:prefLabel>
-		      </fgvterms:grandeArea>
+		      </cnpqterms:grandeArea>
 		    </skos:broader>
-		  </fgvterms:Area>
+		  </cnpqterms:Area>
 		</skos:broader>
-	      </fgvterms:subArea>
+	      </cnpqterms:subArea>
 	    </skos:related>
-	  </fgvterms:Especialidade>
+	  </cnpqterms:Especialidade>
 	</xsl:when>
 	<xsl:otherwise>
 	  <xsl:choose>
 	    <xsl:when test="normalize-space(@NOME-DA-SUB-AREA-DO-CONHECIMENTO) != ''">
-	      <fgvterms:subArea rdf:nodeID="{generate-id(@NOME-DA-SUB-AREA-DO-CONHECIMENTO)}">
+	      <cnpqterms:subArea rdf:nodeID="{generate-id(@NOME-DA-SUB-AREA-DO-CONHECIMENTO)}">
 		<skos:prefLabel><xsl:value-of select="@NOME-DA-SUB-AREA-DO-CONHECIMENTO"/></skos:prefLabel>
 		<skos:broader>		    
-		  <fgvterms:Area rdf:nodeID="{generate-id(@NOME-DA-AREA-DO-CONHECIMENTO)}">
+		  <cnpqterms:Area rdf:nodeID="{generate-id(@NOME-DA-AREA-DO-CONHECIMENTO)}">
 		    <skos:prefLabel><xsl:value-of select="@NOME-DA-AREA-DO-CONHECIMENTO"/></skos:prefLabel>
 		    <skos:broader>
-		      <fgvterms:grandeArea rdf:nodeID="{generate-id(@NOME-GRANDE-AREA-DO-CONHECIMENTO)}">
+		      <cnpqterms:grandeArea rdf:nodeID="{generate-id(@NOME-GRANDE-AREA-DO-CONHECIMENTO)}">
 			<skos:prefLabel>
 			  <xsl:value-of select="@NOME-GRANDE-AREA-DO-CONHECIMENTO"/>
 			</skos:prefLabel>
-		      </fgvterms:grandeArea>
+		      </cnpqterms:grandeArea>
 		    </skos:broader>
-		  </fgvterms:Area>
+		  </cnpqterms:Area>
 		</skos:broader>
-	      </fgvterms:subArea>
+	      </cnpqterms:subArea>
 	    </xsl:when>
 	    <xsl:otherwise>
-	      <fgvterms:Area rdf:nodeID="{generate-id(@NOME-DA-AREA-DO-CONHECIMENTO)}">
+	      <cnpqterms:Area rdf:nodeID="{generate-id(@NOME-DA-AREA-DO-CONHECIMENTO)}">
 		<skos:prefLabel><xsl:value-of select="@NOME-DA-AREA-DO-CONHECIMENTO"/></skos:prefLabel>
 		<skos:broader>
-		  <fgvterms:grandeArea rdf:nodeID="{generate-id(@NOME-GRANDE-AREA-DO-CONHECIMENTO)}">
+		  <cnpqterms:grandeArea rdf:nodeID="{generate-id(@NOME-GRANDE-AREA-DO-CONHECIMENTO)}">
 		    <skos:prefLabel>
 		      <xsl:value-of select="@NOME-GRANDE-AREA-DO-CONHECIMENTO"/>
 		    </skos:prefLabel>
-		  </fgvterms:grandeArea>
+		  </cnpqterms:grandeArea>
 		</skos:broader>
-	      </fgvterms:Area>
+	      </cnpqterms:Area>
 	    </xsl:otherwise>
 	  </xsl:choose>
 	</xsl:otherwise>
@@ -243,57 +257,57 @@ Mountain View, California, 94041, USA.
     <dcterms:subject>
       <xsl:choose>
 	<xsl:when test="normalize-space(@NOME-DA-ESPECIALIDADE) != ''">
-	  <fgvterms:Especialidade rdf:nodeID="{generate-id(@NOME-DA-ESPECIALIDADE)}">
+	  <cnpqterms:Especialidade rdf:nodeID="{generate-id(@NOME-DA-ESPECIALIDADE)}">
 	    <skos:prefLabel><xsl:value-of select="@NOME-DA-ESPECIALIDADE"/></skos:prefLabel>
 	    <skos:related>
-	      <fgvterms:subArea rdf:nodeID="{generate-id(@NOME-DA-SUB-AREA-DO-CONHECIMENTO)}">
+	      <cnpqterms:subArea rdf:nodeID="{generate-id(@NOME-DA-SUB-AREA-DO-CONHECIMENTO)}">
 		<skos:prefLabel><xsl:value-of select="@NOME-DA-SUB-AREA-DO-CONHECIMENTO"/></skos:prefLabel>
 		<skos:broader>		    
-		  <fgvterms:Area rdf:nodeID="{generate-id(@NOME-DA-AREA-DO-CONHECIMENTO)}">
+		  <cnpqterms:Area rdf:nodeID="{generate-id(@NOME-DA-AREA-DO-CONHECIMENTO)}">
 		    <skos:prefLabel><xsl:value-of select="@NOME-DA-AREA-DO-CONHECIMENTO"/></skos:prefLabel>
 		    <skos:broader>
-		      <fgvterms:grandeArea rdf:nodeID="{generate-id(@NOME-GRANDE-AREA-DO-CONHECIMENTO)}">
+		      <cnpqterms:grandeArea rdf:nodeID="{generate-id(@NOME-GRANDE-AREA-DO-CONHECIMENTO)}">
 			<skos:prefLabel>
 			  <xsl:value-of select="@NOME-GRANDE-AREA-DO-CONHECIMENTO"/>
 			</skos:prefLabel>
-		      </fgvterms:grandeArea>
+		      </cnpqterms:grandeArea>
 		    </skos:broader>
-		  </fgvterms:Area>
+		  </cnpqterms:Area>
 		</skos:broader>
-	      </fgvterms:subArea>
+	      </cnpqterms:subArea>
 	    </skos:related>
-	  </fgvterms:Especialidade>
+	  </cnpqterms:Especialidade>
 	</xsl:when>
 	<xsl:otherwise>
 	  <xsl:choose>
 	    <xsl:when test="normalize-space(@NOME-DA-SUB-AREA-DO-CONHECIMENTO) != ''">
-	      <fgvterms:subArea rdf:nodeID="{generate-id(@NOME-DA-SUB-AREA-DO-CONHECIMENTO)}">
+	      <cnpqterms:subArea rdf:nodeID="{generate-id(@NOME-DA-SUB-AREA-DO-CONHECIMENTO)}">
 		<skos:prefLabel><xsl:value-of select="@NOME-DA-SUB-AREA-DO-CONHECIMENTO"/></skos:prefLabel>
 		<skos:broader>		    
-		  <fgvterms:Area rdf:nodeID="{generate-id(@NOME-DA-AREA-DO-CONHECIMENTO)}">
+		  <cnpqterms:Area rdf:nodeID="{generate-id(@NOME-DA-AREA-DO-CONHECIMENTO)}">
 		    <skos:prefLabel><xsl:value-of select="@NOME-DA-AREA-DO-CONHECIMENTO"/></skos:prefLabel>
 		    <skos:broader>
-		      <fgvterms:grandeArea rdf:nodeID="{generate-id(@NOME-GRANDE-AREA-DO-CONHECIMENTO)}">
+		      <cnpqterms:grandeArea rdf:nodeID="{generate-id(@NOME-GRANDE-AREA-DO-CONHECIMENTO)}">
 			<skos:prefLabel>
 			  <xsl:value-of select="@NOME-GRANDE-AREA-DO-CONHECIMENTO"/>
 			</skos:prefLabel>
-		      </fgvterms:grandeArea>
+		      </cnpqterms:grandeArea>
 		    </skos:broader>
-		  </fgvterms:Area>
+		  </cnpqterms:Area>
 		</skos:broader>
-	      </fgvterms:subArea>
+	      </cnpqterms:subArea>
 	    </xsl:when>
 	    <xsl:otherwise>
-	      <fgvterms:Area rdf:nodeID="{generate-id(@NOME-DA-AREA-DO-CONHECIMENTO)}">
+	      <cnpqterms:Area rdf:nodeID="{generate-id(@NOME-DA-AREA-DO-CONHECIMENTO)}">
 		<skos:prefLabel><xsl:value-of select="@NOME-DA-AREA-DO-CONHECIMENTO"/></skos:prefLabel>
 		<skos:broader>
-		  <fgvterms:grandeArea rdf:nodeID="{generate-id(@NOME-GRANDE-AREA-DO-CONHECIMENTO)}">
+		  <cnpqterms:grandeArea rdf:nodeID="{generate-id(@NOME-GRANDE-AREA-DO-CONHECIMENTO)}">
 		    <skos:prefLabel>
 		      <xsl:value-of select="@NOME-GRANDE-AREA-DO-CONHECIMENTO"/>
 		    </skos:prefLabel>
-		  </fgvterms:grandeArea>
+		  </cnpqterms:grandeArea>
 		</skos:broader>
-	      </fgvterms:Area>
+	      </cnpqterms:Area>
 	    </xsl:otherwise>
 	  </xsl:choose>
 	</xsl:otherwise>
@@ -735,18 +749,6 @@ Mountain View, California, 94041, USA.
     </rdf:Description>
   </xsl:template>
 
-
-  <xsl:template match="@HOME-PAGE|@HOME-PAGE-DO-TRABALHO">
-    <xsl:if test="normalize-space(.) != ''">
-      <foaf:homepage><xsl:value-of select="."/></foaf:homepage>
-    </xsl:if>
-  </xsl:template>
-
-  <xsl:template match="@E-MAIL">
-    <xsl:if test="normalize-space(.) != ''">
-      <foaf:mbox><xsl:value-of select="."/></foaf:mbox>
-    </xsl:if>
-  </xsl:template>
 
   <xsl:template match="@DOI">
     <xsl:if test="normalize-space(.) != ''">
