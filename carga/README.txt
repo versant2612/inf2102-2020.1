@@ -1,4 +1,4 @@
-Passos para convers„o dos arquivos xml do Lattes para RDF
+Passos para convers√£o dos arquivos xml do Lattes para RDF
 
 1) No servidor vm032, entrar na pasta /home/cloud-di/lattes_novos
 
@@ -8,9 +8,11 @@ Passos para convers„o dos arquivos xml do Lattes para RDF
 
 4) Executar os scripts zip2xml_alunos.sh e xml2rdf_alunos.sh
 
-5) Conferir o conte˙do das pastas lattes-alunos-rdf e lattes-alunos-xml. Se a quantidade de arquivos È igual e se os arquivos n„o est„o vazios
+5) Conferir o conte√∫do das pastas lattes-alunos-rdf e lattes-alunos-xml. 
+Se a quantidade de arquivos √© igual e se os arquivos n√£o est√£o vazios
 
 6) Executar os scripts zip2xml_professores.sh e xml2rdf_professores.sh
 
-7) Conferir o conte˙do das pastas lattes-professores-rdf, lattes-professores2-rdf e lattes-professores-xml. Se a quantidade de arquivos È igual e se os arquivos n„o est„o vazios
+7) Conferir o conte√∫do das pastas lattes-professores-rdf, lattes-professores2-rdf e lattes-professores-xml. 
+Se a quantidade de arquivos √© igual e se os arquivos n√£o est√£o vazios
 
