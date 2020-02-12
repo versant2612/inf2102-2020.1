@@ -1,6 +1,6 @@
 Passos para conversão dos arquivos xml do Lattes para RDF
 
-1) No servidor vm032, entrar na pasta /home/cloud-di/lattes_novos
+1) No servidor, entrar na pasta /home/cloud-di/lattes_novos
 
 2) Copiar os arquivos recebidos para as respectivas pastas /home/cloud-di/lattes_novos/lattes_alunos-zip e /home/cloud-di/lattes_novos/lattes_professores-zip
 
