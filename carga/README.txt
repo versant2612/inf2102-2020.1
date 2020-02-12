@@ -16,3 +16,10 @@ Se a quantidade de arquivos é igual e se os arquivos não estão vazios
 7) Conferir o conteúdo das pastas lattes-professores-rdf, lattes-professores2-rdf e lattes-professores-xml. 
 Se a quantidade de arquivos é igual e se os arquivos não estão vazios
 
+Comandos de carga (revisar o nome do repositório em caso de teste)
+
+~/ag-6.4.2/bin/agtool load --port 10035 --input rdfxml lattes-alunos lattes-alunos-rdf/*.rdf
+~/ag-6.4.2/bin/agtool load --port 10035 --input rdfxml lattes-professores lattes-professores-rdf/*.rdf
+~/ag-6.4.2/bin/agtool load --port 10035 --input rdfxml lattes-professores2 lattes-professores2-rdf/*.rdf
+
+Verificar a quantidade de triplas carregadas em cada repositório
