@@ -67,7 +67,6 @@ def searchInRepository(repository, string_buscada, resultsDic, numRepo, artigos,
 		incluidos.append("<http://purl.org/ontology/bibo/Chapter>") 
 
 	incluidos = ','.join(incluidos)	
-	print(incluidos)
 
 	queryString = " SELECT ?author_name (COUNT(*) AS ?nOcorrencias) " \
 	" { " \
@@ -75,7 +74,7 @@ def searchInRepository(repository, string_buscada, resultsDic, numRepo, artigos,
 	" WHERE { ?s bio:biography ?bio; foaf:name ?author_name. " \
 	" filter (regex(fn:lower-case(str(?bio)), fn:lower-case('"+ string_buscada +"'))) .}} " \
 	" UNION " \
-	" {SELECT ?author_name ?title " \
+	" {SELECT DISTINCT ?author_name (str(?title) as ?Title) " \
 	" WHERE { ?s dc:title ?title; dc:creator ?author; rdf:type ?prod_type. " \
 	" ?author foaf:name ?author_name . " \
 	" filter (regex(fn:lower-case(str(?title)), fn:lower-case('"+ string_buscada +"'))) . " \
@@ -185,11 +184,15 @@ def about():
 				else:
 					documentos[title,data] = [autor]
 
+		print(artigos)
+
 		resultsDic['artigos']= artigos
 		resultsDic['livros']= livros
 		resultsDic['teses']= teses
 		resultsDic['capitulos']= capitulos
 		resultsDic['documentos']= documentos
+
+		print
 		
 		lattesRep.close()
 		return render_template("about.html", pessoa=pessoa, busca=busca, dados=resultsDic, idp=idp)
