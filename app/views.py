@@ -122,14 +122,45 @@ def about():
 		else:
 			lattesRep = connection.lattes22
 
-		queryStringId = "SELECT ?id " \
-		" WHERE{ ?s dc:title ?title; bibo:identifier ?id. " \
-		" filter (regex(fn:lower-case(str(?title)), fn:lower-case('CV Lattes de'))) .  " \
-		" filter (regex(fn:lower-case(str(?title)), fn:lower-case('"+ pessoa +"'))) . } " \
-		
-		idpessoa = lattesRep.executeTupleQuery(queryStringId)
-		for binding_set in idpessoa:
+		resultsDic = {}
+
+		queryStringInfos = "SELECT ?id ?p ?o " \
+		" WHERE{ ?s dc:title ?title; bibo:identifier ?id; dc:creator ?author. ?author ?p ?o. " \
+		" filter (regex(fn:lower-case(str(?title)), fn:lower-case('CV Lattes de'))) . " \
+		" filter (regex(fn:lower-case(str(?title)), fn:lower-case('"+ pessoa +"'))) . }  " \
+
+		site = {}
+		email = {}
+		homepage = {}
+		mbox = {}
+		biography = {}
+
+		infos = lattesRep.executeTupleQuery(queryStringInfos)
+		for binding_set in infos:
 			idp = str(binding_set.getValue("id")).strip('"')
+			p = str(binding_set.getValue("p"))
+			conteudo = str(binding_set.getValue("o")).strip('"')
+			if p == '<site>':
+				site.setdefault(idp,[]).append(conteudo)
+			elif p == '<email>':
+				email.setdefault(idp,[]).append(conteudo)
+			elif p == '<http://xmlns.com/foaf/0.1/homepage>':
+				homepage.setdefault(idp,[]).append(conteudo)
+			# elif p == 'foaf:mbox':
+			# 	mbox[idp,p].append(conteudo)
+			elif p == '<http://purl.org/vocab/bio/0.1/biography>':
+				biography.setdefault(idp,[]).append(conteudo)
+
+		#bio = [[value for key, value in biography.items()] for biography in resultsDic]
+		
+		l=[]
+		[l.extend([k,v]) for k,v in biography.items()]
+
+		resultsDic['site']= site
+		resultsDic['email']= email
+		resultsDic['homepage']= homepage
+		# resultsDic['mbox']= mbox
+		resultsDic['biography']= l
 
 		queryString = " SELECT DISTINCT (str(?tipo) as ?Tipo) " \
 		"(replace(replace(replace(str(?title),'ê','e'),'â','a'),'ã','a') as ?Title)  ?data ?author2_citationName " \
@@ -142,13 +173,11 @@ def about():
 		" ORDER BY ?Title "
 
 		resultados = lattesRep.executeTupleQuery(queryString)
-		resultsDic = {}
 
 		artigos = {}
 		livros = {}
 		teses = {}
 		capitulos = {}
-		documentos = {}
 
 		for binding_set in resultados:
 			tipo = str(binding_set.getValue("Tipo"))
@@ -162,7 +191,6 @@ def about():
 					artigos[title,data].append(autor)
 				else:
 					artigos[title,data] = [autor]
-				#artigos.setdefault((title,data),[]).append(autor)
 			elif tipo == 'Book' :
 				if (title,data) in livros:
 					livros[title,data].append(autor)
@@ -178,21 +206,34 @@ def about():
 					capitulos[title,data].append(autor)
 				else:
 					capitulos[title,data] = [autor]
-			else:
-				if (title,data) in documentos:
-					documentos[title,data].append(autor)
-				else:
-					documentos[title,data] = [autor]
 
-		print(artigos)
+		queryStringLattes = " SELECT DISTINCT (str(?tipo) as ?Tipo) " \
+		"(replace(replace(replace(str(?title),'ê','e'),'â','a'),'ã','a') as ?Title)  ?data ?author2_citationName " \
+		" WHERE{ ?s dc:title ?title; rdf:type ?tipo ; dcterms:issued ?data; dc:creator ?author. " \
+		" ?author foaf:name ?author_name ." \
+		" {SELECT ?title ?author2_citationName WHERE { ?s dc:title ?title; dc:creator ?author2_id . " \
+		" ?author2_id foaf:citationName ?author2_citationName . } }" \
+		" filter (regex(fn:lower-case(str(?title)), fn:lower-case('" + pessoa + "'))) . " \
+		" filter (regex(fn:lower-case(str(?author_name)), fn:lower-case('" + pessoa + "'))) . }" \
+		" ORDER BY ?Title "
+
+		documentos = {}
+
+		lattespessoa = lattesRep.executeTupleQuery(queryStringLattes)
+		for binding_set in lattespessoa:
+			data = int(str(binding_set.getValue("data")).strip('"')[-4:])
+			title = str(binding_set.getValue("Title"))[1:-1]
+			autor = str(binding_set.getValue("author2_citationName"))[1:-1].split(';')[0]
+			if (title,data) in artigos:
+				documentos[title,data].append(autor)
+			else:
+				documentos[title,data] = [autor]
 
 		resultsDic['artigos']= artigos
 		resultsDic['livros']= livros
 		resultsDic['teses']= teses
 		resultsDic['capitulos']= capitulos
 		resultsDic['documentos']= documentos
-
-		print
 		
 		lattesRep.close()
 		return render_template("about.html", pessoa=pessoa, busca=busca, dados=resultsDic, idp=idp)
@@ -204,5 +245,4 @@ def about():
 
 @app.route('/error')
 def testes():
-
 	return render_template("error.html")
