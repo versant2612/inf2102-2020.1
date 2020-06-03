@@ -170,13 +170,15 @@ def about():
 			p = str(binding_set.getValue("p"))
 			o = str(binding_set.getValue("o")).strip('"')
 			if p == '<http://xmlns.com/foaf/0.1/homepage>':
-				homepage.setdefault(idp,[]).append(o)
+				print(homepage.values())
+				if o not in homepage[idp]:
+					homepage.setdefault(idp,[]).append(o)
 			elif p == '<http://xmlns.com/foaf/0.1/mbox>':
 				email.setdefault(idp,[]).append(o)
-
-		resultsDic['email']= email
-		resultsDic['homepage']= homepage
-		resultsDic['biography']= l
+				
+		resultsDic['email'] = email
+		resultsDic['homepage'] = homepage
+		resultsDic['biography'] = l
 
 		queryString = " SELECT DISTINCT (str(?tipo) as ?Tipo) " \
 		"(replace(replace(replace(str(?title),'ê','e'),'â','a'),'ã','a') as ?Title)  ?data ?author2_citationName " \

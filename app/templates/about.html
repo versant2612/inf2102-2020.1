@@ -34,6 +34,15 @@
 	    </p>
  	{% endif %} 
 
+ 	{% if dados.get('homepage')|length %}
+	    <h3><b>HOMEPAGE</b></h3>
+		<p class="lead" style="font-size: 18px; padding: 20px;" >
+			{% for dadosHomepage in dados.get('homepage') %}
+				* <a href="http://{{ dados.get('homepage')[dadosHomepage][0] }}" target="_blank">{{ dados.get('homepage')[dadosHomepage][0] }}</a>
+			{% endfor %}
+	    </p>
+ 	{% endif %} 
+
 	{% if dados.get('artigos')|length %}
 		<h3><b>ARTIGOS</b></h3>	
 		<p class="lead" style="font-size: 18px; padding: 20px;" >
