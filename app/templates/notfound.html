@@ -1,0 +1,40 @@
+<!-- base.html -->
+{% extends "base.html" %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>{% block title %}{% endblock %}</title>
+    <!-- Bootstrap core CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="https://getbootstrap.com/examples/jumbotron-narrow/jumbotron-narrow.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header clearfix">
+        <nav>
+          <ul class="nav nav-pills pull-right">
+            <li role="presentation" style="font-size: 18px"><a href="/">Inicio</a></li>
+          </ul>
+        </nav>
+      </div>
+      {% block body %}
+      <div class="jumbotron">
+        <div class="row">
+          <div class="col-sm-4"><a href="http://www.puc-rio.br/"><img src="../static/images/puc-rio-logo.png" width="70" height="115" align="left"></div></a>
+          <div class="col-sm-4"><a href="http://www.nima.puc-rio.br/"><img src="../static/images/logo-nima.png" width="250" height="100" align="middle"></div></a>
+          <div class="col-sm-4"><a href="http://www.inf.puc-rio.br//"><img src="../static/images/lodoDI.png" width="180" height="95" align="right"></div></a>
+        </div>
+      <h1>Sistema NIMA</h1>
+
+        <br><p class="lead">Nenhum resultado correspondente foi encontrado em sua pesquisa - <span style="background-color: #FFFF00">{{ busca }}</span>.</p><br>
+      {% endblock %}
+      <footer class="footer">
+        <p>© 2020 BioBD PUC-Rio</p>
+      </footer>
+    </div>
+  </body>
+</html>

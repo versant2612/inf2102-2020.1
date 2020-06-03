@@ -5,6 +5,7 @@ AGRAPH_USER = os.environ.get('AGRAPH_USER')
 AGRAPH_PASSWORD = os.environ.get('AGRAPH_PASSWORD')
 
 from franz.openrdf.connect import ag_connect
-lattes = ag_connect('lattes-alunos')
-lattes21 = ag_connect('lattes-professores') 
-lattes22 = ag_connect('lattes-professores2')
+lattes_alunos = ag_connect('carga-lattes-alunos')
+lattes_profs1 = ag_connect('carga-lattes-professores') 
+lattes_profs2 = ag_connect('carga-lattes-professores2')
+matriculas_puc =  ag_connect('matriculas_puc_etl')

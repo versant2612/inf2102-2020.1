@@ -16,20 +16,21 @@ def index():
 	form = SearchForm()
 
 	if request.method == 'POST':
+		#formulario de pesquisa que caracteriza o que o usuário quer buscar (string e botoes de artigo, livros, teses, capitulos)
 		string_buscada = form.busca.data
 		artigos = form.artigos.data
 		livros = form.livros.data
 		teses = form.teses.data
 		capitulos = form.capitulos.data
 
-		resultsLattes1 = {}
-		resultsLattes21= {}
-		resultsLattes22= {}
+		resultsLattesAlunos = {}
+		resultsLattesProfessores1 = {}
+		resultsLattesProfessores2 = {}
 
 		try:
-			t1 = threading.Thread(target=searchInRepository, args=(connection.lattes, string_buscada, resultsLattes1, 0, artigos, livros, teses, capitulos))
-			t21 = threading.Thread(target=searchInRepository, args=(connection.lattes21, string_buscada, resultsLattes21, 1, artigos, livros, teses, capitulos))
-			t22 = threading.Thread(target=searchInRepository, args=(connection.lattes22, string_buscada, resultsLattes22, 2, artigos, livros, teses, capitulos))
+			t1 = threading.Thread(target=searchInRepository, args=(connection.lattes_alunos, string_buscada, resultsLattesAlunos, 0, artigos, livros, teses, capitulos))
+			t21 = threading.Thread(target=searchInRepository, args=(connection.lattes_profs1, string_buscada, resultsLattesProfessores1, 1, artigos, livros, teses, capitulos))
+			t22 = threading.Thread(target=searchInRepository, args=(connection.lattes_profs2, string_buscada, resultsLattesProfessores2, 2, artigos, livros, teses, capitulos))
 
 			threads = [t1,t21,t22]
 
@@ -39,9 +40,12 @@ def index():
 			for t in threads:
 				t.join()
 
-			results = {**resultsLattes1, **resultsLattes21, **resultsLattes22}
+			results = {**resultsLattesAlunos, **resultsLattesProfessores1, **resultsLattesProfessores2}
 			resultsFiltered = {k: v for k, v in results.items() if v[0] != 0}
 			resultsFinal = sorted(resultsFiltered.items(), key=operator.itemgetter(1,0), reverse=True)
+
+			if resultsFinal == []:
+				return render_template("/notfound.html", busca=string_buscada)
 
 			return render_template("/index.html", form=form, dados=resultsFinal, busca=string_buscada, nResultados=len(resultsFinal))
 
@@ -89,16 +93,17 @@ def searchInRepository(repository, string_buscada, resultsDic, numRepo, artigos,
 	else:
 		tipo = 'Professor'
 
+	#exemplo de binding_set: {'author_name': 'None', 'nOcorrencias': '"0"^^<http://www.w3.org/2001/XMLSchema#integer>'}
 	for binding_set in result:
 		authorName = str(binding_set.getValue("author_name"))
 		nOcorrencias = int(str(binding_set.getValue("nOcorrencias")).replace('"^^<http://www.w3.org/2001/XMLSchema#integer>',"").strip('"'))
 		authorName=authorName[1:-1] # fora os " "
 		resultsDic.update({authorName : [nOcorrencias, numRepo, tipo]})
-
+	
 	lattesRep.close()
 
 def mergeDict(dict1, dict2):
-   ''' Merge dictionaries and keep values of common keys in list'''
+   #Merge dictionaries and keep values of common keys in list
    dict3 = {**dict1, **dict2}
    for key, value in dict3.items():
        if key in dict1 and key in dict2:
@@ -109,18 +114,17 @@ def mergeDict(dict1, dict2):
 
 @app.route('/about')
 def about():
-
 	pessoa = request.args.get('pessoa')
 	busca = request.args.get('busca')
 	nRepositorio = int(request.args.get('nRepositorio'))
 
 	try:
 		if nRepositorio == 0:
-			lattesRep = connection.lattes
-		elif nRepositorio ==1:
-			lattesRep = connection.lattes21
-		else:
-			lattesRep = connection.lattes22
+			lattesRep = connection.lattes_alunos
+		elif nRepositorio == 1:
+			lattesRep = connection.lattes_profs1
+		elif nRepositorio == 2:
+			lattesRep = connection.lattes_profs2
 
 		resultsDic = {}
 
@@ -128,11 +132,11 @@ def about():
 		" WHERE{ ?s dc:title ?title; bibo:identifier ?id; dc:creator ?author. ?author ?p ?o. " \
 		" filter (regex(fn:lower-case(str(?title)), fn:lower-case('CV Lattes de'))) . " \
 		" filter (regex(fn:lower-case(str(?title)), fn:lower-case('"+ pessoa +"'))) . }  " \
+		#oq pode ser pego nessa query: foaf:member, bio:biography, foaf:citationName, foaf:name, foaf:homepage
+		#nao retorna mbox
 
-		site = {}
 		email = {}
 		homepage = {}
-		mbox = {}
 		biography = {}
 
 		infos = lattesRep.executeTupleQuery(queryStringInfos)
@@ -140,26 +144,38 @@ def about():
 			idp = str(binding_set.getValue("id")).strip('"')
 			p = str(binding_set.getValue("p"))
 			conteudo = str(binding_set.getValue("o")).strip('"')
-			if p == '<site>':
-				site.setdefault(idp,[]).append(conteudo)
-			elif p == '<email>':
-				email.setdefault(idp,[]).append(conteudo)
-			elif p == '<http://xmlns.com/foaf/0.1/homepage>':
+			if p == '<http://xmlns.com/foaf/0.1/homepage>':
 				homepage.setdefault(idp,[]).append(conteudo)
-			# elif p == 'foaf:mbox':
-			# 	mbox[idp,p].append(conteudo)
 			elif p == '<http://purl.org/vocab/bio/0.1/biography>':
 				biography.setdefault(idp,[]).append(conteudo)
 
-		#bio = [[value for key, value in biography.items()] for biography in resultsDic]
-		
 		l=[]
 		[l.extend([k,v]) for k,v in biography.items()]
 
-		resultsDic['site']= site
+		#bio = [[value for key, value in biography.items()] for biography in resultsDic]
+
+		id_nima = "http://www.nima.puc-rio.br/lattes/" + idp +"#author-" + idp
+
+		#query pra pegar email e homepage do arquivo matriculas_puc
+		queryStringEmailHomepage = "SELECT ?author_name ?p ?o "\
+		"WHERE{ ?m ?p ?o ; foaf:name ?author_name; (owl:sameAs|^owl:sameAs)* ?author_id. "\
+		"filter (?author_id = <" + id_nima + ">) . "\
+		"filter (?p in (foaf:homepage, foaf:mbox)). }"
+
+		#{'author_name': '"Carolina Guimarães de Souza Dias"', 'p': '<http://xmlns.com/foaf/0.1/mbox>', 'o': '"carolina_dias@puc-rio.br"'}
+		emailhomepage = connection.matriculas_puc.executeTupleQuery(queryStringEmailHomepage)
+		for binding_set in emailhomepage:
+			print(binding_set)
+			authorName = str(binding_set.getValue("author_name"))
+			p = str(binding_set.getValue("p"))
+			o = str(binding_set.getValue("o")).strip('"')
+			if p == '<http://xmlns.com/foaf/0.1/homepage>':
+				homepage.setdefault(idp,[]).append(o)
+			elif p == '<http://xmlns.com/foaf/0.1/mbox>':
+				email.setdefault(idp,[]).append(o)
+
 		resultsDic['email']= email
 		resultsDic['homepage']= homepage
-		# resultsDic['mbox']= mbox
 		resultsDic['biography']= l
 
 		queryString = " SELECT DISTINCT (str(?tipo) as ?Tipo) " \
@@ -229,11 +245,11 @@ def about():
 			else:
 				documentos[title,data] = [autor]
 
-		resultsDic['artigos']= artigos
-		resultsDic['livros']= livros
-		resultsDic['teses']= teses
-		resultsDic['capitulos']= capitulos
-		resultsDic['documentos']= documentos
+		resultsDic['artigos'] = artigos
+		resultsDic['livros'] = livros
+		resultsDic['teses'] = teses
+		resultsDic['capitulos'] = capitulos
+		resultsDic['documentos'] = documentos
 		
 		lattesRep.close()
 		return render_template("about.html", pessoa=pessoa, busca=busca, dados=resultsDic, idp=idp)
