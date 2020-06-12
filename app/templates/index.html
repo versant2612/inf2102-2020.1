@@ -20,10 +20,10 @@
             <p>O que deseja incluir na busca?</p>
             <div style="font-size: 15px">Marcar/Desmarcar todos: <input id="marcacao" type="checkbox"></input></div>
             <div style="text-align: center; font-size: 20px; padding-top: 2%">
-                Artigos: {{ form.artigos(class_="form-group", id="artigos", checked=True)}}
-                Livros: {{ form.livros(class_="form-group", id="livros", checked=True) }}
-                Teses: {{ form.teses(class_="form-group", id="teses", checked=True) }}
-                Capítulos: {{ form.capitulos(class_="form-group", id="capitulos", checked=True) }}
+                <div style="display: inline; padding-right: 5%">{{ form.artigos(class_="form-group", id="artigos", checked=True)}} Artigos </div>
+                <div style="display: inline; padding-right: 5%">{{ form.livros(class_="form-group", id="livros", checked=True) }} Livros</div>
+                <div style="display: inline; padding-right: 5%">{{ form.teses(class_="form-group", id="teses", checked=True) }} Teses</div>
+                <div style="display: inline; padding-right: 5%">{{ form.capitulos(class_="form-group", id="capitulos", checked=True) }} Capítulos</div>
             </div> 
             <br/>
             <br/>
