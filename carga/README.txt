@@ -22,4 +22,8 @@ Comandos de carga (revisar o nome do repositório em caso de teste)
 ~/ag-6.4.2/bin/agtool load --port 10035 --input rdfxml lattes-professores lattes-professores-rdf/*.rdf
 ~/ag-6.4.2/bin/agtool load --port 10035 --input rdfxml lattes-professores2 lattes-professores2-rdf/*.rdf
 
-Verificar a quantidade de triplas carregadas em cada repositório
+Verificar a quantidade de triplas carregadas em cada repositório e o tempo de carga
+
+A cada carga executada é importante registrar no Blog do NIMA com um post como esse
+
+https://biobdnima.blogspot.com/2020/02/revisao-da-conversao-e-carga-do-lattes.html
