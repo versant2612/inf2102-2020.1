@@ -74,21 +74,27 @@ def searchInRepository(repository, string_buscada, resultsDic, numRepo, artigos,
 
 	queryString = " SELECT ?author_name (COUNT(*) AS ?nOcorrencias) " \
 	"{ " \
-  	"{ SELECT ?author_name ?bio " \
-  	"  WHERE { ?s bio:biography ?bio; foaf:name ?author_name; foaf:member ?UnivOrigem. " \
-  	"  filter (regex(fn:lower-case(str(?bio)), fn:lower-case('"+ string_buscada +"'))) . " \
-    "  filter (?UnivOrigem = <http://www.nima.puc-rio.br/lattes/PUC-RIO>).}} " \
+	"{ SELECT ?author_name ?bio " \
+	"  WHERE { ?s bio:biography ?bio; foaf:name ?author_name; foaf:member ?UnivOrigem. " \
+	"  filter (regex(fn:lower-case(str(?bio)), fn:lower-case('"+string_buscada+"'))) . " \
+	"  filter (?UnivOrigem = <http://www.nima.puc-rio.br/lattes/PUC-RIO>).}} " \
 	"UNION " \
 	"{ SELECT DISTINCT ?author_name (str(?title) as ?Title) " \
- 	"  WHERE { ?s dc:title ?title; dcterms:isReferencedBy ?CVLattes; rdf:type ?prod_type. " \
- 	"  ?CVLattes dc:creator ?author. " \
-  	"  ?author foaf:name ?author_name; foaf:member ?UnivOrigem. " \
-  	"  filter (regex(fn:lower-case(str(?title)), fn:lower-case('"+ string_buscada +"'))) . " \
-  	"  filter (?UnivOrigem = <http://www.nima.puc-rio.br/lattes/PUC-RIO>). " \
-    "  filter (?prod_type IN ("+ incluidos +") ) .}} " \
-    "} " \
-   	"GROUP BY ?author_name " \
-   	"ORDER BY DESC(?nOcorrencias) " \
+	"  WHERE { ?s dc:title ?title; dcterms:isReferencedBy ?CVLattes; rdf:type ?prod_type. " \
+	"  ?CVLattes dc:creator ?author. " \
+	"  ?author foaf:name ?author_name; foaf:member ?UnivOrigem. " \
+	"  filter (regex(fn:lower-case(str(?title)), fn:lower-case('"+string_buscada+"'))) . " \
+	"  filter (?UnivOrigem = <http://www.nima.puc-rio.br/lattes/PUC-RIO>). " \
+	"  filter (?prod_type IN ("+incluidos+") ) .}} " \
+	"UNION " \
+	"{ SELECT DISTINCT ?author_name (str(?title) as ?Title) " \
+	"  WHERE { ?CVLattes dc:title ?title; dc:creator ?author; rdf:type ?prod_type. " \
+	"  ?author foaf:name ?author_name; foaf:member ?UnivOrigem. " \
+	"  filter (regex(fn:lower-case(str(?author_name)), fn:lower-case('"+string_buscada+"'))) . " \
+	"filter (?prod_type = <http://xmlns.com/foaf/0.1/Document>) .}} " \
+	"} " \
+	"GROUP BY ?author_name " \
+	"ORDER BY DESC(?nOcorrencias) " \
 
 	result = lattesRep.executeTupleQuery(queryString)
 	if numRepo == 0:
