@@ -10,6 +10,10 @@ from .forms import SearchForm
 import operator
 import threading
 from collections import defaultdict
+import logging
+
+# Inicialização da variável que guarda o logger do módulo
+logger = logging.getLogger(__name__)
 
 @app.route('/', methods=['GET','POST'])
 def index():
@@ -45,12 +49,14 @@ def index():
 			resultsFinal = sorted(resultsFiltered.items(), key=operator.itemgetter(1,0), reverse=True)
 
 			if resultsFinal == []:
+				logger.error('Nenhum resultado correspondente foi encontrado em sua pesquisa - %s', string_buscada)
 				return render_template("/notfound.html", busca=string_buscada)
 
 			return render_template("/index.html", form=form, dados=resultsFinal, busca=string_buscada, nResultados=len(resultsFinal))
 
 		except Exception as e:
 			print("Exception : ", e)
+			logger.error('Aconteceu alguma excecao na funcao index (busca principal): %s', e)
 			return render_template("error.html")
 
 	return render_template("/index.html", form=form)
@@ -96,18 +102,23 @@ def searchInRepository(repository, string_buscada, resultsDic, numRepo, artigos,
 	"GROUP BY ?author_name " \
 	"ORDER BY DESC(?nOcorrencias) " \
 
-	result = lattesRep.executeTupleQuery(queryString)
-	if numRepo == 0:
-		tipo = 'Aluno'
-	else:
-		tipo = 'Professor'
+	try:
+		result = lattesRep.executeTupleQuery(queryString)
+		if numRepo == 0:
+			tipo = 'Aluno'
+		else:
+			tipo = 'Professor'
 
-	#exemplo de binding_set: {'author_name': 'None', 'nOcorrencias': '"0"^^<http://www.w3.org/2001/XMLSchema#integer>'}
-	for binding_set in result:
-		authorName = str(binding_set.getValue("author_name"))
-		nOcorrencias = int(str(binding_set.getValue("nOcorrencias")).replace('"^^<http://www.w3.org/2001/XMLSchema#integer>',"").strip('"'))
-		authorName=authorName[1:-1] # fora os " "
-		resultsDic.update({authorName : [nOcorrencias, numRepo, tipo]})
+		#exemplo de binding_set: {'author_name': 'None', 'nOcorrencias': '"0"^^<http://www.w3.org/2001/XMLSchema#integer>'}
+		for binding_set in result:
+			authorName = str(binding_set.getValue("author_name"))
+			nOcorrencias = int(str(binding_set.getValue("nOcorrencias")).replace('"^^<http://www.w3.org/2001/XMLSchema#integer>',"").strip('"'))
+			authorName=authorName[1:-1] # fora os " "
+			resultsDic.update({authorName : [nOcorrencias, numRepo, tipo]})
+			
+	except Exception as e:
+		logger.error('Aconteceu alguma excecao ao fazer a busca nos repositorios: %s', e)
+		return render_template("error.html")
 	
 	lattesRep.close()
 
@@ -147,7 +158,7 @@ def about():
 		email = {}
 		homepage = {}
 		biography = {}
-
+		
 		infos = lattesRep.executeTupleQuery(queryStringInfos)
 		for binding_set in infos:
 			idp = str(binding_set.getValue("id")).strip('"')
@@ -265,9 +276,5 @@ def about():
 	
 	except Exception as e:
 		print("Exception : ", e)
+		logger.error('Aconteceu alguma excecao na funcao about: %s', e)
 		return render_template("error.html")
-
-
-@app.route('/error')
-def testes():
-	return render_template("error.html")
