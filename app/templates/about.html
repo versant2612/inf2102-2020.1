@@ -25,15 +25,6 @@
 	    </p>
 	{% endif %}
 
- 	{% if dados.get('email')|length %}
-	    <h3><b>EMAIL</b></h3>
-		<p class="lead" style="font-size: 18px; padding: 20px;" >
-			{% for dadosEmail in dados.get('email') %}
-				* <a href="mailto:{{ dados.get('email')[dadosEmail][0] }}">{{ dados.get('email')[dadosEmail][0] }}</a>
-			{% endfor %}
-	    </p>
- 	{% endif %} 
-
  	{% if dados.get('homepage')|length %}
 	    <h3><b>HOMEPAGE</b></h3>
 		<p class="lead" style="font-size: 18px; padding: 20px;" >
